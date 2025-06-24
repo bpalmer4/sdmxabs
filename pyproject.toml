@@ -1,0 +1,41 @@
+[project]
+name = "sdmxabs"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+
+dependencies = [
+    # - system
+    "typing",
+    "pathlib",
+    "importlib",
+
+    # - internet
+    "requests",
+    "types-requests",
+    "lxml",
+
+    # - data science
+    "pandas",
+    "tabulate",
+]
+
+[dependency-groups]
+dev = [
+    # - tools
+    "black",
+    "mypy",
+    "pdoc",
+    "pylint",
+    "ruff",
+    
+    # - typing
+    "pandas-stubs",
+    "types-tabulate",
+
+    # --- testing
+    "ipython",
+    "ipykernel",
+    "watermark",
+]
