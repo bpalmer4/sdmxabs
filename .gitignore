@@ -19,7 +19,9 @@ wheels/
 *.egg-info
 
 # cache files
+test/.sdmxabs_cache/
 test/.sdmxabs_cache/**
+src/sdmxabs/.sdmxcache_cache/
 src/sdmxabs/.sdmxabs_cache/**
 
 # Virtual environments
