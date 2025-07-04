@@ -195,7 +195,7 @@ def get_data(url: str, file_path: Path, **kwargs) -> bytes:
     return request_get(url, file_path, **kwargs)
 
 
-def acqure_url(
+def acquire_url(
     url: str,
     cache_dir: Path = SDMXABS_CACHE_PATH,
     cache_prefix: str = "cache",
@@ -253,11 +253,11 @@ if __name__ == "__main__":
         print("Test commencing.")
         for u in (url1, url1):
             print("=" * width)
-            content = acqure_url(u, verbose=True)
+            content = acquire_url(u, verbose=True)
             print("-" * width)
             print(f"{len(content)} bytes retrieved from {u}.")
         print("=" * width)
-        content = acqure_url(url1, verbose=True, modality="url_only")
+        content = acquire_url(url1, verbose=True, modality="url_only")
         print(f"Byte count: {len(content)}")
         print("Test completed.")
 

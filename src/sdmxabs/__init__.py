@@ -5,11 +5,11 @@ from importlib.metadata import PackageNotFoundError, version
 from sdmxabs.download_cache import (
     CacheError,
     HttpError,
-    acqure_url,
+    acquire_url,
     GetFileKwargs,
     ModalityType,
 )
-from sdmxabs.metadata import abs_catalogue
+from .metadata import data_flows, data_dimensions, code_lists
 
 # --- version and author
 try:
@@ -26,6 +26,8 @@ __all__ = [
     "ModalityType",
     "__author__",
     "__version__",
-    "acqure_url",
-    "abs_catalogue",
+    "acquire_url",
+    "data_flows",
+    "data_dimensions",
+    "code_lists",
 ]
