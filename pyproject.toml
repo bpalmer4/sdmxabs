@@ -37,4 +37,5 @@ dev = [
     "ipython",
     "ipykernel",
     "watermark",
+    "mgplot",
 ]

@@ -111,7 +111,6 @@ def populate(flow_id: str, tree: ET.ElementTree) -> tuple[pd.DataFrame, pd.DataF
     for series_count, xml_series in enumerate(
         tree.findall(".//gen:Series", NAME_SPACES)
     ):
-        print(type(xml_series))
         if xml_series is None:
             print("No Series found in XML tree, skipping.")
             continue
@@ -130,7 +129,7 @@ def populate(flow_id: str, tree: ET.ElementTree) -> tuple[pd.DataFrame, pd.DataF
         series.name = label
         data[label] = series
 
-    return pd.DataFrame(data).T, pd.DataFrame(meta).T  # data, meta
+    return pd.DataFrame(data), pd.DataFrame(meta).T  # data, meta
 
 
 def fetch(

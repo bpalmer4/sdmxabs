@@ -28,8 +28,8 @@ uv sync  # install with the development dependencies
 uv pip install dist/$PACKAGE*.whl
 
 # --- build documentation
-#source .venv/bin/activate  # we need an environment to get pdoc 
-#~/$PACKAGE/build-docs.sh
+source .venv/bin/activate  # we need an environment to get pdoc 
+~/$PACKAGE/build-docs.sh
 
 # --- if everything is good publish and git
 echo "\nAnd if everything is okay ..."

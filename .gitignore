@@ -24,6 +24,9 @@ test/.sdmxabs_cache/**
 src/sdmxabs/.sdmxcache_cache/
 src/sdmxabs/.sdmxabs_cache/**
 
+# test outputs
+test/CHARTS/**
+
 # Virtual environments
 .venv
 
