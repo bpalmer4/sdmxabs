@@ -497,7 +497,7 @@ wheels = [
 
 [[package]]
 name = "mgplot"
-version = "0.2.5"
+version = "0.2.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib" },
@@ -507,9 +507,9 @@ dependencies = [
     { name = "tabulate" },
     { name = "typing" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/aa/7b/6b2f7e3fa80d6a059b263393f529d300a30e7b4599bc53fb4686a17458ed/mgplot-0.2.5.tar.gz", hash = "sha256:e661872bda17d18e1d3d82d58cd87bf228ed13a6aabf7c1689808f46a09c8e8a", size = 1534662, upload-time = "2025-06-22T05:01:17.231Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/e0/dd/645461ad664667d554a5be87b6741ed8b995122a2842cd1d2fec1384f9f0/mgplot-0.2.6.tar.gz", hash = "sha256:64a6452c8584b65a2d12683cc74d4f74049b6046b8826b10f574878e12c5fcd4", size = 1529962, upload-time = "2025-07-05T12:19:40.636Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/52/f7/4a091edb009b485913aa11c2a04abcf348f04a1dcf3979719f09137a6bce/mgplot-0.2.5-py3-none-any.whl", hash = "sha256:1ac3d7ed57aa76b8861ea7766775adad342ed1ed2e7f55488cd2192f1964a646", size = 40229, upload-time = "2025-06-22T05:01:14.651Z" },
+    { url = "https://files.pythonhosted.org/packages/63/b3/65fced7dd444c85a96d10e3e3cfbb07d1dbde48036b878785d41216f2f7c/mgplot-0.2.6-py3-none-any.whl", hash = "sha256:6c3759846413d5eb9d83fa9eebf45e65422d77edc5e1cb81544fe9ba7725f532", size = 40251, upload-time = "2025-07-05T12:19:38.242Z" },
 ]
 
 [[package]]
