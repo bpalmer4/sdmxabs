@@ -5,14 +5,11 @@ variable SDMXABS_CACHE_DIR.
 """
 
 import re
-from datetime import UTC, datetime
 from hashlib import sha256
 from os import getenv
-
 from pathlib import Path
 from typing import NotRequired, TypedDict, Unpack, Literal
 
-import pandas as pd
 import requests
 
 # --- constants
@@ -33,9 +30,7 @@ class CacheError(Exception):
     """A problem retrieving data from the cache."""
 
 
-ModalityType = Literal[
-    "cache_only", "prefer_cache", "freshest", "prefer_url", "url_only"
-]
+ModalityType = Literal["prefer_cache", "prefer_url"]
 
 
 class GetFileKwargs(TypedDict):
@@ -43,8 +38,6 @@ class GetFileKwargs(TypedDict):
 
     verbose: NotRequired[bool]
     """If True, print information about the retrieval process."""
-    ignore_errors: NotRequired[bool]
-    """If True, do not raise exceptions on errors."""
     modality: NotRequired[ModalityType]
     """Kind of retrieval: 'cache_only', 'prefer_cache', 'freshest', 'url_only'."""
 
@@ -53,25 +46,19 @@ class GetFileKwargs(TypedDict):
 def check_for_bad_response(
     url: str,
     response: requests.Response,
-    **kwargs: Unpack[GetFileKwargs],
-) -> bool:
+):
     """Raise an Exception if we could not retrieve the URL.
 
     Args:
         url (str): The URL we tried to access.
         response (requests.Response): The response object from the request.
-        kwargs (GetFileKwargs): Additional keyword arguments.
 
     """
-    ignore_errors: bool = kwargs.get("ignore_errors", False)
     code = response.status_code
     success = 200
     if code != success or response.headers is None:
         problem = f"Problem {code} accessing: {url}."
-        if not ignore_errors:
-            raise HttpError(problem)
-        print(problem)
-        return True
+        raise HttpError(problem)
 
     return False
 
@@ -105,21 +92,16 @@ def request_get(
     # Initialise variables
 
     verbose = kwargs.get("verbose", False)
-    ignore_errors = kwargs.get("ignore_errors", False)
     if verbose:
         print(f"About to request/download: {url}")
 
     try:
         gotten = requests.get(url, allow_redirects=True, timeout=DOWNLOAD_TIMEOUT)
     except requests.exceptions.RequestException as e:
-        error = f"request_get(): there was a problem downloading {url}."
-        if not ignore_errors:
-            raise HttpError(error) from e
-        print(error)
-        return b""
+        error = f"request_get(): there was a problem downloading {url} --> ({e})."
+        raise HttpError(error) from e
 
-    if check_for_bad_response(url, gotten, ignore_errors=ignore_errors):
-        return b""
+    check_for_bad_response(url, gotten)  # exception on error
 
     return_bytes = gotten.content
     if len(gotten.content) > 0:
@@ -131,13 +113,9 @@ def request_get(
 def retrieve_from_cache(file: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
     """Retrieve bytes from file-system."""
     verbose = kwargs.get("verbose", False)
-    ignore_errors = kwargs.get("ignore_errors", False)
 
     if not file.exists() or not file.is_file():
         message = f"Cached file not available: {file.name}"
-        if ignore_errors:
-            print(message)
-            return b""
         raise CacheError(message)
     if verbose:
         print(f"Retrieving from cache: {file}")
@@ -154,45 +132,24 @@ def get_data(url: str, file_path: Path, **kwargs) -> bytes:
         print(f"get_data called with: {kwargs}")
     modality: ModalityType = kwargs.get("modality", "prefer_cache")
 
-    # --- cache only
-    if modality == "cache_only":
-        return retrieve_from_cache(file_path, **kwargs)
-
-    # --- url only
-    if modality == "url_only":
-        return request_get(url, file_path, **kwargs)
-
-    # --- prefer-cache
-    cache_mtime: datetime | None = None
+    # --- prefer_cache
     if file_path.exists() and file_path.is_file():
         if modality == "prefer_cache":
+            try:
+                text = retrieve_from_cache(file_path, **kwargs)
+                if len(text) > 0:
+                    return text
+            except CacheError:
+                pass
             text = retrieve_from_cache(file_path, **kwargs)
             if len(text) > 0:
                 return text
-        cache_mtime = pd.to_datetime(
-            datetime.fromtimestamp(file_path.stat().st_mtime, tz=UTC),
-            utc=True,
-        )
-    url_mtime: datetime | None = None
 
-    # --- freshest
-    if modality == "freshest":
-        response = requests.head(url, allow_redirects=True, timeout=20)
-        if not check_for_bad_response(url, response, **kwargs):
-            source_time = response.headers.get("Last-Modified", None)
-            url_mtime = (
-                None if source_time is None else pd.to_datetime(source_time, utc=True)
-            )
-        if (
-            url_mtime is not None
-            and cache_mtime is not None
-            and url_mtime <= cache_mtime
-        ):
-            return retrieve_from_cache(file_path, **kwargs)
-        else:
-            return request_get(url, file_path, **kwargs)
-
-    return request_get(url, file_path, **kwargs)
+    # --- prefer_url
+    try:
+        return request_get(url, file_path, **kwargs)
+    except HttpError:
+        return retrieve_from_cache(file_path, **kwargs)
 
 
 def acquire_url(
@@ -257,7 +214,7 @@ if __name__ == "__main__":
             print("-" * width)
             print(f"{len(content)} bytes retrieved from {u}.")
         print("=" * width)
-        content = acquire_url(url1, verbose=True, modality="url_only")
+        content = acquire_url(url1, verbose=True, modality="prefer_url")
         print(f"Byte count: {len(content)}")
         print("Test completed.")
 
