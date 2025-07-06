@@ -5,16 +5,18 @@ Note: the ABS has advised that Metadata is primarily available in XML.
          application-programming-interfaces-apis/data-api-user-guide)
 """
 
-from typing import Unpack
 from functools import cache
+from typing import Unpack
+
 import pandas as pd
+
 from sdmxabs.download_cache import GetFileKwargs
-from sdmxabs.xml_base import acquire_xml, URL_STEM, NAME_SPACES
+from sdmxabs.xml_base import NAME_SPACES, URL_STEM, acquire_xml
 
 
 # --- functions
 @cache
-def data_flows(flow_id="all", **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
+def data_flows(flow_id: str = "all", **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
     """Get the toplevel metadata from the ABS SDMX API.
 
     Args:
@@ -48,10 +50,11 @@ def data_flows(flow_id="all", **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
 
 
 @cache
-def data_dimensions(flow_id, **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
+def data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
     """Get the data dimensions metadata from the ABS SDMX API.
 
     Args:
+        flow_id (str): The ID of the dataflow to retrieve dimensions for.
         **kwargs: Additional keyword arguments passed to acquire_url().
 
     Raises:
@@ -69,9 +72,10 @@ def data_dimensions(flow_id, **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
         if dim_id is None or dim_pos is None:
             continue
         contents = {"position": dim_pos}
-        if (lr := dim.find("str:LocalRepresentation", NAME_SPACES)) is not None:
-            if (enumer := lr.find("str:Enumeration/Ref", NAME_SPACES)) is not None:
-                contents = contents | enumer.attrib
+        if (lr := dim.find("str:LocalRepresentation", NAME_SPACES)) is not None and (
+            enumer := lr.find("str:Enumeration/Ref", NAME_SPACES)
+        ) is not None:
+            contents = contents | enumer.attrib
         dimensions[dim_id] = contents
     return pd.DataFrame(dimensions).T.rename_axis(index="dimensions")
 
@@ -128,13 +132,22 @@ def problem_code(dim: str, value: str, required: pd.DataFrame) -> str:
     if package and package == "codelist":
         codelist_name = str(required.loc[dim, "id"])
         if codelist_name and value not in code_lists(codelist_name).index:
-            return codelist_name
+            return f"Code '{value}' for dimension '{dim}' is not valid for codelist '{codelist_name}'"
     return ""  # empty string if no problem
 
 
-def build_key(
-    flow_id: str, dimensions: dict[str, str] | None, *, validate=False
-) -> str:
+def publish_alerts(flow_id: str, missing: list[str], extra: list[str], wrong: list[str]) -> None:
+    """Publish alerts for missing, extra, or wrongly valued dimensions."""
+    if missing:
+        print(f"Missing dimensions for {flow_id}: {missing}")
+    if extra:
+        print(f"Extra dimensions for {flow_id}: {extra}")
+    if wrong:
+        for w in wrong:
+            print(w)
+
+
+def build_key(flow_id: str, dimensions: dict[str, str] | None, *, validate: bool = False) -> str:
     """Build a key for a dataflow based on its dimensions.
 
     Args:
@@ -148,6 +161,7 @@ def build_key(
         str: A string representing the key for the requested data.
 
     """
+    # --- check validity of inputs
     if not flow_id or flow_id not in data_flows().index:
         raise ValueError("A valid flow_id must be specified")
 
@@ -158,20 +172,11 @@ def build_key(
     required = data_dimensions(flow_id)
     if required is None or required.empty or position not in required.columns:
         return "all"
-
     required[position] = required[position].astype(int)  # for the sort
-    if validate:
-        # missing will be treated as global
-        missing = [k for k in required.index if k not in dimensions]
-        if missing:
-            print(
-                f"Unspecified dimensions for {flow_id}: {missing} (will global match)"
-            )
-        extra = [k for k in dimensions if k not in required.index]
-        if extra:
-            print(f"Extraneous dimensions for {flow_id}: {extra} (will be ignored)")
 
+    # --- build key using the required dimensions
     keys = []
+    wrong = []
     for dim in required.sort_values(position).index:
         if dim in dimensions:
             value = dimensions[dim]
@@ -180,14 +185,19 @@ def build_key(
             if not issues:
                 keys.append(f"{value}")
                 continue
-            if validate:
-                print(
-                    f"Code '{value}' for dimension '{dim}' is not "
-                    f"valid for '{flow_id}' (ignored)"
-                )
+            wrong += issues
         keys.append("")
 
-    return f"{'.'.join(keys)}"  # the dot separated key
+    # --- alert to any dimensional coding issues
+    if validate:
+        missing = [k for k in required.index if k not in dimensions]
+        extra = [k for k in dimensions if k not in required.index]
+        publish_alerts(flow_id, missing, extra, wrong)
+
+    # --- if there are no keys, return "all"
+    if keys:
+        return f"{'.'.join(keys)}"  # the dot separated key
+    return "all"
 
 
 if __name__ == "__main__":
@@ -195,9 +205,7 @@ if __name__ == "__main__":
     FLOWS = data_flows(modality="prefer_cache")
     print("Length:", len(FLOWS))
     print("Columns:", FLOWS.columns)
-    print(
-        "Example rows:\n", FLOWS[FLOWS.name.str.contains("National Accounts")], sep=""
-    )
+    print("Example rows:\n", FLOWS[FLOWS.name.str.contains("National Accounts")], sep="")
 
     # --- data_flows -- specific dataflow
     FLOWS = data_flows(flow_id="WPI", modality="prefer_cache")
@@ -239,12 +247,8 @@ if __name__ == "__main__":
     print(CODE_LISTS)
 
     # --- build_key
-    KEY = build_key(
-        "WPI", {"FREQ": "Q", "REGION": "NSW", "MEASURES": "CPI"}, validate=True
-    )
+    KEY = build_key("WPI", {"FREQ": "Q", "REGION": "NSW", "MEASURES": "CPI"}, validate=True)
     print("Key:", KEY)
 
-    KEY = build_key(
-        "WPI", {"FREQ": "Q", "REGION": "1+2", "MEASURES": "CPI"}, validate=False
-    )
+    KEY = build_key("WPI", {"FREQ": "Q", "REGION": "1+2", "MEASURES": "CPI"}, validate=False)
     print("Key:", KEY)

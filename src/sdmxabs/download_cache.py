@@ -8,7 +8,7 @@ import re
 from hashlib import sha256
 from os import getenv
 from pathlib import Path
-from typing import NotRequired, TypedDict, Unpack, Literal
+from typing import Literal, NotRequired, TypedDict, Unpack
 
 import requests
 
@@ -39,19 +39,22 @@ class GetFileKwargs(TypedDict):
     verbose: NotRequired[bool]
     """If True, print information about the retrieval process."""
     modality: NotRequired[ModalityType]
-    """Kind of retrieval: 'cache_only', 'prefer_cache', 'freshest', 'url_only'."""
+    """Kind of retrieval: "prefer_cache", "prefer_url"."""
 
 
 # --- functions
 def check_for_bad_response(
     url: str,
     response: requests.Response,
-):
+) -> None:
     """Raise an Exception if we could not retrieve the URL.
 
     Args:
         url (str): The URL we tried to access.
         response (requests.Response): The response object from the request.
+
+    Raises:
+        HttpError: If the response status code is not 200 or if the headers are None
 
     """
     code = response.status_code
@@ -59,8 +62,6 @@ def check_for_bad_response(
     if code != success or response.headers is None:
         problem = f"Problem {code} accessing: {url}."
         raise HttpError(problem)
-
-    return False
 
 
 def save_to_cache(
@@ -125,7 +126,6 @@ def retrieve_from_cache(file: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
 
 def get_data(url: str, file_path: Path, **kwargs) -> bytes:
     """Select the source of the file based on the modality."""
-
     # --- set arguments
     verbose: bool = kwargs.get("verbose", False)
     if verbose:
@@ -133,17 +133,16 @@ def get_data(url: str, file_path: Path, **kwargs) -> bytes:
     modality: ModalityType = kwargs.get("modality", "prefer_cache")
 
     # --- prefer_cache
-    if file_path.exists() and file_path.is_file():
-        if modality == "prefer_cache":
-            try:
-                text = retrieve_from_cache(file_path, **kwargs)
-                if len(text) > 0:
-                    return text
-            except CacheError:
-                pass
+    if file_path.exists() and file_path.is_file() and modality != "prefer_url":
+        try:
             text = retrieve_from_cache(file_path, **kwargs)
             if len(text) > 0:
                 return text
+        except CacheError:
+            pass
+        text = retrieve_from_cache(file_path, **kwargs)
+        if len(text) > 0:
+            return text
 
     # --- prefer_url
     try:
@@ -176,9 +175,7 @@ def acquire_url(
         bad_cache_pattern = r'[~"#%&*:<>?\\{|}]+'  # chars to remove from name
         hash_name = sha256(url.encode("utf-8")).hexdigest()
         tail_name = url.split("/")[-1].split("?")[0]
-        file_name = re.sub(
-            bad_cache_pattern, "", f"{cache_prefix}--{hash_name}--{tail_name}"
-        )
+        file_name = re.sub(bad_cache_pattern, "", f"{cache_prefix}--{hash_name}--{tail_name}")
         return Path(cache_dir / file_name)
 
     # create and check cache_dir is a directory

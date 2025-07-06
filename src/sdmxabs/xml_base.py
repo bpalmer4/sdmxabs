@@ -1,9 +1,9 @@
 """XML code for the ABS SDMX API."""
 
-from typing import Unpack
 import xml.etree.ElementTree as ET
-from sdmxabs.download_cache import acquire_url, GetFileKwargs
+from typing import Unpack
 
+from sdmxabs.download_cache import GetFileKwargs, acquire_url
 
 # --- constants
 
@@ -22,7 +22,7 @@ NAME_SPACES = {
 # === functions
 
 
-def acquire_xml(url, **kwargs: Unpack[GetFileKwargs]) -> ET.ElementTree:
+def acquire_xml(url: str, **kwargs: Unpack[GetFileKwargs]) -> ET.ElementTree:
     """Acquire xml data from the ABS SDMX API.
 
     Args:

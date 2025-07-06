@@ -1,14 +1,15 @@
 """Capture data from the Australian Bureau of Statistics (ABS) using the SDMX API."""
 
 from importlib.metadata import PackageNotFoundError, version
+
 from .data import fetch
-from .metadata import data_flows, data_dimensions, code_lists
 from .download_cache import (
     CacheError,
-    HttpError,
     GetFileKwargs,
+    HttpError,
     ModalityType,
 )
+from .metadata import code_lists, data_dimensions, data_flows
 
 # --- version and author
 try:
@@ -25,8 +26,8 @@ __all__ = [
     "ModalityType",
     "__author__",
     "__version__",
-    "data_flows",
-    "data_dimensions",
     "code_lists",
+    "data_dimensions",
+    "data_flows",
     "fetch",
 ]
