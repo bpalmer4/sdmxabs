@@ -948,7 +948,7 @@ wheels = [
 
 [[package]]
 name = "sdmxabs"
-version = "0.1.1a1"
+version = "0.1.1"
 source = { editable = "." }
 dependencies = [
     { name = "defusedxml" },
@@ -957,6 +957,7 @@ dependencies = [
     { name = "pathlib" },
     { name = "requests" },
     { name = "tabulate" },
+    { name = "types-defusedxml" },
     { name = "types-requests" },
     { name = "typing" },
 ]
@@ -984,6 +985,7 @@ requires-dist = [
     { name = "pathlib" },
     { name = "requests" },
     { name = "tabulate" },
+    { name = "types-defusedxml" },
     { name = "types-requests" },
     { name = "typing" },
 ]
@@ -1079,6 +1081,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/eb/79/72064e6a701c2183016abbbfedaba506d81e30e232a68c9f0d6f6fcd1574/traitlets-5.14.3.tar.gz", hash = "sha256:9ed0579d3502c94b4b3732ac120375cda96f923114522847de4b3bb98b96b6b7", size = 161621, upload-time = "2024-04-19T11:11:49.746Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/00/c0/8f5d070730d7836adc9c9b6408dec68c6ced86b304a9b26a14df072a6e8c/traitlets-5.14.3-py3-none-any.whl", hash = "sha256:b74e89e397b1ed28cc831db7aea759ba6640cb3de13090ca145426688ff1ac4f", size = 85359, upload-time = "2024-04-19T11:11:46.763Z" },
+]
+
+[[package]]
+name = "types-defusedxml"
+version = "0.7.0.20250516"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/9d/3ba8b80536402f1a125bc5a44d82ab686aafa55a85f56160e076b2ac30de/types_defusedxml-0.7.0.20250516.tar.gz", hash = "sha256:164c2945077fa450f24ed09633f8b3a80694687fefbbc1cba5f24e4ba570666b", size = 10298, upload-time = "2025-05-16T03:08:18.951Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2e/7b/567b0978150edccf7fa3aa8f2566ea9c3ffc9481ce7d64428166934d6d7f/types_defusedxml-0.7.0.20250516-py3-none-any.whl", hash = "sha256:00e793e5c385c3e142d7c2acc3b4ccea2fe0828cee11e35501f0ba40386630a0", size = 12576, upload-time = "2025-05-16T03:08:17.892Z" },
 ]
 
 [[package]]

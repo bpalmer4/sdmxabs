@@ -164,7 +164,7 @@ sdmxabs    </h1>
 </span><span id="GetFileKwargs-38"><a href="#GetFileKwargs-38"><span class="linenos">38</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;TypedDict for acqure_url function arguments.&quot;&quot;&quot;</span>
 </span><span id="GetFileKwargs-39"><a href="#GetFileKwargs-39"><span class="linenos">39</span></a>
 </span><span id="GetFileKwargs-40"><a href="#GetFileKwargs-40"><span class="linenos">40</span></a>    <span class="n">verbose</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span>
-</span><span id="GetFileKwargs-41"><a href="#GetFileKwargs-41"><span class="linenos">41</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;If True, print information about the retrieval process.&quot;&quot;&quot;</span>
+</span><span id="GetFileKwargs-41"><a href="#GetFileKwargs-41"><span class="linenos">41</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;If True, print information about the data retrieval process.&quot;&quot;&quot;</span>
 </span><span id="GetFileKwargs-42"><a href="#GetFileKwargs-42"><span class="linenos">42</span></a>    <span class="n">modality</span><span class="p">:</span> <span class="n">NotRequired</span><span class="p">[</span><span class="n">ModalityType</span><span class="p">]</span>
 </span><span id="GetFileKwargs-43"><a href="#GetFileKwargs-43"><span class="linenos">43</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Kind of retrieval: &quot;prefer_cache&quot;, &quot;prefer_url&quot;.&quot;&quot;&quot;</span>
 </span></pre></div>
@@ -182,14 +182,14 @@ sdmxabs    </h1>
     </div>
     <a class="headerlink" href="#GetFileKwargs.verbose"></a>
     
-            <div class="docstring"><p>If True, print information about the retrieval process.</p>
+            <div class="docstring"><p>If True, print information about the data retrieval process.</p>
 </div>
 
 
                             </div>
                             <div id="GetFileKwargs.modality" class="classattr">
                                 <div class="attr variable">
-            <span class="name">modality</span><span class="annotation">: NotRequired[Literal[&#39;prefer_cache&#39;, &#39;prefer_url&#39;]]</span>
+            <span class="name">modality</span><span class="annotation">: NotRequired[Literal[&#39;prefer-cache&#39;, &#39;prefer-url&#39;]]</span>
 
         
     </div>
@@ -225,7 +225,7 @@ sdmxabs    </h1>
                 <section id="ModalityType">
                     <div class="attr variable">
             <span class="name">ModalityType</span>        =
-<span class="default_value">typing.Literal[&#39;prefer_cache&#39;, &#39;prefer_url&#39;]</span>
+<span class="default_value">typing.Literal[&#39;prefer-cache&#39;, &#39;prefer-url&#39;]</span>
 
         
     </div>
@@ -486,7 +486,7 @@ sdmxabs    </h1>
 </span><span id="fetch-152"><a href="#fetch-152"><span class="linenos">152</span></a>
 </span><span id="fetch-153"><a href="#fetch-153"><span class="linenos">153</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="fetch-154"><a href="#fetch-154"><span class="linenos">154</span></a>    <span class="c1"># --- prepare to get the XML tree from the ABS SDMX API</span>
-</span><span id="fetch-155"><a href="#fetch-155"><span class="linenos">155</span></a>    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;modality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;modality&quot;</span><span class="p">,</span> <span class="s2">&quot;prefer_cache&quot;</span><span class="p">)</span>  <span class="c1"># default prefer_cache</span>
+</span><span id="fetch-155"><a href="#fetch-155"><span class="linenos">155</span></a>    <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;modality&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;modality&quot;</span><span class="p">,</span> <span class="s2">&quot;prefer-cache&quot;</span><span class="p">)</span>  <span class="c1"># default prefer_cache</span>
 </span><span id="fetch-156"><a href="#fetch-156"><span class="linenos">156</span></a>    <span class="n">key</span> <span class="o">=</span> <span class="n">build_key</span><span class="p">(</span>
 </span><span id="fetch-157"><a href="#fetch-157"><span class="linenos">157</span></a>        <span class="n">flow_id</span><span class="p">,</span>
 </span><span id="fetch-158"><a href="#fetch-158"><span class="linenos">158</span></a>        <span class="n">dims</span><span class="p">,</span>

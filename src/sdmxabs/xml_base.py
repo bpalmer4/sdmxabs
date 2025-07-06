@@ -1,7 +1,9 @@
 """XML code for the ABS SDMX API."""
 
-import xml.etree.ElementTree as ET
 from typing import Unpack
+from xml.etree.ElementTree import Element
+
+from defusedxml import ElementTree
 
 from sdmxabs.download_cache import GetFileKwargs, acquire_url
 
@@ -20,9 +22,7 @@ NAME_SPACES = {
 
 
 # === functions
-
-
-def acquire_xml(url: str, **kwargs: Unpack[GetFileKwargs]) -> ET.ElementTree:
+def acquire_xml(url: str, **kwargs: Unpack[GetFileKwargs]) -> Element:
     """Acquire xml data from the ABS SDMX API.
 
     Args:
@@ -30,15 +30,23 @@ def acquire_xml(url: str, **kwargs: Unpack[GetFileKwargs]) -> ET.ElementTree:
         **kwargs: Additional keyword arguments passed to acquire_url().
 
     Returns:
-        ET.ElementTree: An ElementTree object containing the XML data.
+        An Element object containing the XML data.
 
     Raises:
         ValueError: If no XML tree is found in the response.
 
     """
-    kwargs["modality"] = kwargs.get("modality", "prefer_cache")
+    # Note: will need to "prefer-url" for data requests.
+    # But "prefer-cache" should be fine for metadata requests.
+    # And for development, "prefer-cache" is also fine.
+    kwargs["modality"] = kwargs.get("modality", "prefer-cache")
     xml = acquire_url(url, **kwargs)
-    tree = ET.ElementTree(ET.fromstring(xml))
-    if tree is None:
-        raise ValueError("No XML tree found in the response.")
-    return tree
+    root = ElementTree.fromstring(xml)
+    if root is None:
+        raise ValueError("No XML root found in the response.")
+    return root
+
+
+if __name__ == "__main__":
+    URL = "https://data.api.abs.gov.au/rest/data/WPI"
+    FOUND = acquire_xml(URL, modality="prefer-cache")

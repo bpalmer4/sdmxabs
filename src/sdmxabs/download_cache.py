@@ -30,14 +30,14 @@ class CacheError(Exception):
     """A problem retrieving data from the cache."""
 
 
-ModalityType = Literal["prefer_cache", "prefer_url"]
+ModalityType = Literal["prefer-cache", "prefer-url"]
 
 
 class GetFileKwargs(TypedDict):
     """TypedDict for acqure_url function arguments."""
 
     verbose: NotRequired[bool]
-    """If True, print information about the retrieval process."""
+    """If True, print information about the data retrieval process."""
     modality: NotRequired[ModalityType]
     """Kind of retrieval: "prefer_cache", "prefer_url"."""
 
@@ -72,7 +72,7 @@ def save_to_cache(
     """Save bytes to the file-system."""
     verbose = kwargs.get("verbose", False)
     if len(contents) == 0:
-        # dont save empty files (probably caused by ignoring errors)
+        # dont save empty files (possibly caused by ignoring errors)
         return
     if file_path.exists():
         if verbose:
@@ -124,31 +124,35 @@ def retrieve_from_cache(file: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
     return file.read_bytes()
 
 
-def get_data(url: str, file_path: Path, **kwargs) -> bytes:
+def get_data(url: str, file_path: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
     """Select the source of the file based on the modality."""
     # --- set arguments
     verbose: bool = kwargs.get("verbose", False)
     if verbose:
         print(f"get_data called with: {kwargs}")
-    modality: ModalityType = kwargs.get("modality", "prefer_cache")
+    modality: ModalityType = kwargs.get("modality", "prefer-cache")
 
-    # --- prefer_cache
-    if file_path.exists() and file_path.is_file() and modality != "prefer_url":
+    # --- prefer-cache
+    tried_cache = False
+    if file_path.exists() and file_path.is_file() and modality != "prefer-url":
         try:
             text = retrieve_from_cache(file_path, **kwargs)
             if len(text) > 0:
                 return text
         except CacheError:
             pass
-        text = retrieve_from_cache(file_path, **kwargs)
-        if len(text) > 0:
-            return text
+        tried_cache = True
 
     # --- prefer_url
     try:
         return request_get(url, file_path, **kwargs)
     except HttpError:
-        return retrieve_from_cache(file_path, **kwargs)
+        if tried_cache:
+            # if we tried the cache, then we have no choice but to raise the error
+            raise
+
+    # if we did not try the cache, then we can return the cached file
+    return retrieve_from_cache(file_path, **kwargs)
 
 
 def acquire_url(
@@ -167,6 +171,10 @@ def acquire_url(
 
     Returns:
         bytes: The content of the file retrieved from the URL or local cache.
+
+    Raises:
+        CacheError: If the cache directory is not a valid directory.
+        HttpError: If there is a problem retrieving the URL.
 
     """
 
@@ -211,7 +219,7 @@ if __name__ == "__main__":
             print("-" * width)
             print(f"{len(content)} bytes retrieved from {u}.")
         print("=" * width)
-        content = acquire_url(url1, verbose=True, modality="prefer_url")
+        content = acquire_url(url1, verbose=True, modality="prefer-url")
         print(f"Byte count: {len(content)}")
         print("Test completed.")
 

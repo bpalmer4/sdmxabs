@@ -1,7 +1,7 @@
 """Obtain data from the ABS SDMX API."""
 
-import xml.etree.ElementTree as ET
 from typing import Unpack, cast
+from xml.etree.ElementTree import Element
 
 import numpy as np
 import pandas as pd
@@ -11,7 +11,7 @@ from sdmxabs.metadata import build_key, code_lists, data_dimensions
 from sdmxabs.xml_base import NAME_SPACES, URL_STEM, acquire_xml
 
 
-def get_series_data(xml_series: ET.ElementTree, meta: pd.Series) -> pd.Series:
+def get_series_data(xml_series: Element, meta: pd.Series) -> pd.Series:
     """Extract observed data from the XML tree for a given single series."""
     series_elements = {}
     for item in xml_series.findall("gen:Obs", NAME_SPACES):
@@ -50,7 +50,7 @@ def get_series_data(xml_series: ET.ElementTree, meta: pd.Series) -> pd.Series:
     return series
 
 
-def get_meta_data(xml_series: ET.ElementTree, series_count: int, dims: pd.DataFrame) -> tuple[str, pd.Series]:
+def get_meta_data(xml_series: Element, series_count: int, dims: pd.DataFrame) -> tuple[str, pd.Series]:
     """Extract metadata from the XML tree for a given series."""
     key_sets = ("SeriesKey", "Attributes")
     meta_items = {}
@@ -88,7 +88,7 @@ def get_meta_data(xml_series: ET.ElementTree, series_count: int, dims: pd.DataFr
     return final_key, pd.Series(meta_items).rename(final_key)
 
 
-def populate(flow_id: str, tree: ET.ElementTree) -> tuple[pd.DataFrame, pd.DataFrame]:
+def populate(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Extract data from the XML tree."""
     # Get the data dimensions for the flow_id, it provides entree to the metadata
     dims = data_dimensions(flow_id)
@@ -102,7 +102,7 @@ def populate(flow_id: str, tree: ET.ElementTree) -> tuple[pd.DataFrame, pd.DataF
         label, dataset = get_meta_data(
             # python typing is not smart enough to know that
             # xml_series is an ElementTree
-            cast("ET.ElementTree", xml_series),
+            xml_series,
             series_count,
             dims,
         )
@@ -111,7 +111,7 @@ def populate(flow_id: str, tree: ET.ElementTree) -> tuple[pd.DataFrame, pd.DataF
             print(f"Duplicate series {label} in {flow_id} found, skipping.")
             continue
         meta[label] = dataset
-        series = get_series_data(cast("ET.ElementTree", xml_series), dataset)
+        series = get_series_data(xml_series, dataset)
         series.name = label
         data[label] = series
 
@@ -151,7 +151,7 @@ def fetch(
 
     """
     # --- prepare to get the XML tree from the ABS SDMX API
-    kwargs["modality"] = kwargs.get("modality", "prefer_cache")  # default prefer_cache
+    kwargs["modality"] = kwargs.get("modality", "prefer-cache")  # default prefer_cache
     key = build_key(
         flow_id,
         dims,
@@ -184,8 +184,8 @@ if __name__ == "__main__":
         FLOW_ID,
         dims=DIMS,
         validate=True,
-        modality="prefer_url",
+        modality="prefer-url",
     )
-    # The transpose (.T)is used here to make the output more readable
+    # Note: The transpose (.T) is used here to make the output more readable
     print("\nFetched Data:\n", FETCHED_DATA.T, sep="")
     print("\nFetched Metadata:\n", FETCHED_META.T, sep="")
