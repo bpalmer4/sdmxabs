@@ -26,6 +26,7 @@
             <ul>
                     <li><a href="sdmxabs/fetch.html">fetch</a></li>
                     <li><a href="sdmxabs/fetch_multi.html">fetch_multi</a></li>
+                    <li><a href="sdmxabs/select_items.html">select_items</a></li>
             </ul>
 
             <h2>API Documentation</h2>
@@ -55,6 +56,27 @@
 
             </li>
             <li>
+                    <a class="variable" href="#MatchCriteria">MatchCriteria</a>
+            </li>
+            <li>
+                    <a class="variable" href="#MatchItem">MatchItem</a>
+            </li>
+            <li>
+                    <a class="class" href="#MatchType">MatchType</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#MatchType.EXACT">EXACT</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MatchType.PARTIAL">PARTIAL</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#MatchType.REGEX">REGEX</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
                     <a class="variable" href="#ModalityType">ModalityType</a>
             </li>
             <li>
@@ -77,6 +99,15 @@
             </li>
             <li>
                     <a class="function" href="#fetch_multi">fetch_multi</a>
+            </li>
+            <li>
+                    <a class="function" href="#fetch_selection">fetch_selection</a>
+            </li>
+            <li>
+                    <a class="function" href="#match_criterion">match_criterion</a>
+            </li>
+            <li>
+                    <a class="function" href="#select_items">select_items</a>
             </li>
     </ul>
 
@@ -114,28 +145,35 @@ sdmxabs    </h1>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch_multi</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_multi</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.flow_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">code_lists</span><span class="p">,</span> <span class="n">data_dimensions</span><span class="p">,</span> <span class="n">data_flows</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="c1"># --- version and author</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="k">try</span><span class="p">:</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="n">version</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="k">except</span> <span class="n">PackageNotFoundError</span><span class="p">:</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.0&quot;</span>  <span class="c1"># Fallback for development mode</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Bryan Palmer&quot;</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a><span class="c1"># --- establish the package contents</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="s2">&quot;CacheError&quot;</span><span class="p">,</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="s2">&quot;GetFileKwargs&quot;</span><span class="p">,</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="s2">&quot;HttpError&quot;</span><span class="p">,</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="s2">&quot;ModalityType&quot;</span><span class="p">,</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="s2">&quot;__author__&quot;</span><span class="p">,</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="s2">&quot;code_lists&quot;</span><span class="p">,</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="s2">&quot;data_dimensions&quot;</span><span class="p">,</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="s2">&quot;data_flows&quot;</span><span class="p">,</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="s2">&quot;fetch&quot;</span><span class="p">,</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="s2">&quot;fetch_multi&quot;</span><span class="p">,</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a><span class="p">]</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.select_items</span><span class="w"> </span><span class="kn">import</span> <span class="n">MatchCriteria</span><span class="p">,</span> <span class="n">MatchItem</span><span class="p">,</span> <span class="n">MatchType</span><span class="p">,</span> <span class="n">fetch_selection</span><span class="p">,</span> <span class="n">match_criterion</span><span class="p">,</span> <span class="n">select_items</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="c1"># --- version and author</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="k">try</span><span class="p">:</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="n">version</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="k">except</span> <span class="n">PackageNotFoundError</span><span class="p">:</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>    <span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.0.0&quot;</span>  <span class="c1"># Fallback for development mode</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="n">__author__</span> <span class="o">=</span> <span class="s2">&quot;Bryan Palmer&quot;</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="c1"># --- establish the package contents</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="s2">&quot;CacheError&quot;</span><span class="p">,</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="s2">&quot;GetFileKwargs&quot;</span><span class="p">,</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="s2">&quot;HttpError&quot;</span><span class="p">,</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="s2">&quot;MatchCriteria&quot;</span><span class="p">,</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="s2">&quot;MatchItem&quot;</span><span class="p">,</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="s2">&quot;MatchType&quot;</span><span class="p">,</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="s2">&quot;ModalityType&quot;</span><span class="p">,</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="s2">&quot;__author__&quot;</span><span class="p">,</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="s2">&quot;code_lists&quot;</span><span class="p">,</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="s2">&quot;data_dimensions&quot;</span><span class="p">,</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="s2">&quot;data_flows&quot;</span><span class="p">,</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="s2">&quot;fetch&quot;</span><span class="p">,</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="s2">&quot;fetch_multi&quot;</span><span class="p">,</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="s2">&quot;fetch_selection&quot;</span><span class="p">,</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="s2">&quot;match_criterion&quot;</span><span class="p">,</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="s2">&quot;select_items&quot;</span><span class="p">,</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="p">]</span>
 </span></pre></div>
 
 
@@ -233,6 +271,91 @@ sdmxabs    </h1>
 </div>
 
 
+                </section>
+                <section id="MatchCriteria">
+                    <div class="attr variable">
+            <span class="name">MatchCriteria</span>        =
+<span class="default_value">collections.abc.Sequence[tuple[str, str, <a href="#MatchType">MatchType</a>]]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MatchCriteria"></a>
+    
+    
+
+                </section>
+                <section id="MatchItem">
+                    <div class="attr variable">
+            <span class="name">MatchItem</span>        =
+<span class="default_value">tuple[str, str, <a href="#MatchType">MatchType</a>]</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MatchItem"></a>
+    
+    
+
+                </section>
+                <section id="MatchType">
+                            <input id="MatchType-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">MatchType</span><wbr>(<span class="base">enum.Enum</span>):
+
+                <label class="view-source-button" for="MatchType-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#MatchType"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="MatchType-15"><a href="#MatchType-15"><span class="linenos">15</span></a><span class="k">class</span><span class="w"> </span><span class="nc">MatchType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+</span><span id="MatchType-16"><a href="#MatchType-16"><span class="linenos">16</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Enumeration for match types.&quot;&quot;&quot;</span>
+</span><span id="MatchType-17"><a href="#MatchType-17"><span class="linenos">17</span></a>
+</span><span id="MatchType-18"><a href="#MatchType-18"><span class="linenos">18</span></a>    <span class="n">EXACT</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span id="MatchType-19"><a href="#MatchType-19"><span class="linenos">19</span></a>    <span class="n">PARTIAL</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span id="MatchType-20"><a href="#MatchType-20"><span class="linenos">20</span></a>    <span class="n">REGEX</span> <span class="o">=</span> <span class="mi">3</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Enumeration for match types.</p>
+</div>
+
+
+                            <div id="MatchType.EXACT" class="classattr">
+                                <div class="attr variable">
+            <span class="name">EXACT</span>        =
+<span class="default_value">&lt;<a href="#MatchType.EXACT">MatchType.EXACT</a>: 1&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MatchType.EXACT"></a>
+    
+    
+
+                            </div>
+                            <div id="MatchType.PARTIAL" class="classattr">
+                                <div class="attr variable">
+            <span class="name">PARTIAL</span>        =
+<span class="default_value">&lt;<a href="#MatchType.PARTIAL">MatchType.PARTIAL</a>: 2&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MatchType.PARTIAL"></a>
+    
+    
+
+                            </div>
+                            <div id="MatchType.REGEX" class="classattr">
+                                <div class="attr variable">
+            <span class="name">REGEX</span>        =
+<span class="default_value">&lt;<a href="#MatchType.REGEX">MatchType.REGEX</a>: 3&gt;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#MatchType.REGEX"></a>
+    
+    
+
+                            </div>
                 </section>
                 <section id="ModalityType">
                     <div class="attr variable">
@@ -565,48 +688,50 @@ sdmxabs    </h1>
 
     </div>
     <a class="headerlink" href="#fetch_multi"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_multi-76"><a href="#fetch_multi-76"><span class="linenos"> 76</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_multi</span><span class="p">(</span>
-</span><span id="fetch_multi-77"><a href="#fetch_multi-77"><span class="linenos"> 77</span></a>    <span class="n">wanted</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-</span><span id="fetch_multi-78"><a href="#fetch_multi-78"><span class="linenos"> 78</span></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="fetch_multi-79"><a href="#fetch_multi-79"><span class="linenos"> 79</span></a>    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="fetch_multi-80"><a href="#fetch_multi-80"><span class="linenos"> 80</span></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">],</span>
-</span><span id="fetch_multi-81"><a href="#fetch_multi-81"><span class="linenos"> 81</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-</span><span id="fetch_multi-82"><a href="#fetch_multi-82"><span class="linenos"> 82</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch multiple SDMX datasets based on a DataFrame of desired datasets.</span>
-</span><span id="fetch_multi-83"><a href="#fetch_multi-83"><span class="linenos"> 83</span></a>
-</span><span id="fetch_multi-84"><a href="#fetch_multi-84"><span class="linenos"> 84</span></a><span class="sd">    Args:</span>
-</span><span id="fetch_multi-85"><a href="#fetch_multi-85"><span class="linenos"> 85</span></a><span class="sd">        wanted: A DataFrame with rows for each desired data set (of one or more series).</span>
-</span><span id="fetch_multi-86"><a href="#fetch_multi-86"><span class="linenos"> 86</span></a><span class="sd">                Each row should contain the necessary identifiers to fetch the dataset.</span>
-</span><span id="fetch_multi-87"><a href="#fetch_multi-87"><span class="linenos"> 87</span></a><span class="sd">                The columns will be &#39;flow_id&#39;, plus the ABS dimensions relevant to the flow.</span>
-</span><span id="fetch_multi-88"><a href="#fetch_multi-88"><span class="linenos"> 88</span></a><span class="sd">                The &#39;flow_id&#39; column is mandatory, and the rest are optional.</span>
-</span><span id="fetch_multi-89"><a href="#fetch_multi-89"><span class="linenos"> 89</span></a><span class="sd">                Note: the DataFrame index is not used in the fetching process.</span>
-</span><span id="fetch_multi-90"><a href="#fetch_multi-90"><span class="linenos"> 90</span></a><span class="sd">        validate: If True, the function will validate the dimensions and values against</span>
-</span><span id="fetch_multi-91"><a href="#fetch_multi-91"><span class="linenos"> 91</span></a><span class="sd">                  the ABS SDMX API codelists. Defaults to False.</span>
-</span><span id="fetch_multi-92"><a href="#fetch_multi-92"><span class="linenos"> 92</span></a><span class="sd">        **kwargs: Additional keyword arguments passed to the underlying data fetching function.</span>
-</span><span id="fetch_multi-93"><a href="#fetch_multi-93"><span class="linenos"> 93</span></a>
-</span><span id="fetch_multi-94"><a href="#fetch_multi-94"><span class="linenos"> 94</span></a><span class="sd">    Returns:</span>
-</span><span id="fetch_multi-95"><a href="#fetch_multi-95"><span class="linenos"> 95</span></a><span class="sd">        A tuple containing two DataFrames:</span>
-</span><span id="fetch_multi-96"><a href="#fetch_multi-96"><span class="linenos"> 96</span></a><span class="sd">        - The first DataFrame contains the fetched data.</span>
-</span><span id="fetch_multi-97"><a href="#fetch_multi-97"><span class="linenos"> 97</span></a><span class="sd">        - The second DataFrame contains metadata about the fetched datasets.</span>
-</span><span id="fetch_multi-98"><a href="#fetch_multi-98"><span class="linenos"> 98</span></a>
-</span><span id="fetch_multi-99"><a href="#fetch_multi-99"><span class="linenos"> 99</span></a><span class="sd">    Raises:</span>
-</span><span id="fetch_multi-100"><a href="#fetch_multi-100"><span class="linenos">100</span></a><span class="sd">        ValueError: If the &#39;flow_id&#39; column is missing from the `wanted` DataFrame.</span>
-</span><span id="fetch_multi-101"><a href="#fetch_multi-101"><span class="linenos">101</span></a><span class="sd">        CacheError: If there is an issue with the cache.</span>
-</span><span id="fetch_multi-102"><a href="#fetch_multi-102"><span class="linenos">102</span></a><span class="sd">        HttpError: If there is an issue with the HTTP request.</span>
-</span><span id="fetch_multi-103"><a href="#fetch_multi-103"><span class="linenos">103</span></a>
-</span><span id="fetch_multi-104"><a href="#fetch_multi-104"><span class="linenos">104</span></a><span class="sd">    Caution:</span>
-</span><span id="fetch_multi-105"><a href="#fetch_multi-105"><span class="linenos">105</span></a><span class="sd">        The selected data should all have the same index. You cannot mix (for example)</span>
-</span><span id="fetch_multi-106"><a href="#fetch_multi-106"><span class="linenos">106</span></a><span class="sd">        Quarterly and Monthly data in the same DataFrame.</span>
-</span><span id="fetch_multi-107"><a href="#fetch_multi-107"><span class="linenos">107</span></a>
-</span><span id="fetch_multi-108"><a href="#fetch_multi-108"><span class="linenos">108</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="fetch_multi-109"><a href="#fetch_multi-109"><span class="linenos">109</span></a>    <span class="c1"># --- quick sanity checks</span>
-</span><span id="fetch_multi-110"><a href="#fetch_multi-110"><span class="linenos">110</span></a>    <span class="k">if</span> <span class="n">wanted</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-</span><span id="fetch_multi-111"><a href="#fetch_multi-111"><span class="linenos">111</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;wanted DataFrame is empty, returning empty DataFrames.&quot;</span><span class="p">)</span>
-</span><span id="fetch_multi-112"><a href="#fetch_multi-112"><span class="linenos">112</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-</span><span id="fetch_multi-113"><a href="#fetch_multi-113"><span class="linenos">113</span></a>    <span class="k">if</span> <span class="s2">&quot;flow_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wanted</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-</span><span id="fetch_multi-114"><a href="#fetch_multi-114"><span class="linenos">114</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;flow_id&#39; column is required in the &#39;wanted&#39; DataFrame.&quot;</span><span class="p">)</span>
-</span><span id="fetch_multi-115"><a href="#fetch_multi-115"><span class="linenos">115</span></a>
-</span><span id="fetch_multi-116"><a href="#fetch_multi-116"><span class="linenos">116</span></a>    <span class="c1"># --- do the work</span>
-</span><span id="fetch_multi-117"><a href="#fetch_multi-117"><span class="linenos">117</span></a>    <span class="k">return</span> <span class="n">extract</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_multi-75"><a href="#fetch_multi-75"><span class="linenos"> 75</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_multi</span><span class="p">(</span>
+</span><span id="fetch_multi-76"><a href="#fetch_multi-76"><span class="linenos"> 76</span></a>    <span class="n">wanted</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+</span><span id="fetch_multi-77"><a href="#fetch_multi-77"><span class="linenos"> 77</span></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="fetch_multi-78"><a href="#fetch_multi-78"><span class="linenos"> 78</span></a>    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="fetch_multi-79"><a href="#fetch_multi-79"><span class="linenos"> 79</span></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">],</span>
+</span><span id="fetch_multi-80"><a href="#fetch_multi-80"><span class="linenos"> 80</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+</span><span id="fetch_multi-81"><a href="#fetch_multi-81"><span class="linenos"> 81</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch multiple SDMX datasets based on a DataFrame of desired datasets.</span>
+</span><span id="fetch_multi-82"><a href="#fetch_multi-82"><span class="linenos"> 82</span></a>
+</span><span id="fetch_multi-83"><a href="#fetch_multi-83"><span class="linenos"> 83</span></a><span class="sd">    Args:</span>
+</span><span id="fetch_multi-84"><a href="#fetch_multi-84"><span class="linenos"> 84</span></a><span class="sd">        wanted: A DataFrame with rows for each desired data set (of one or more series).</span>
+</span><span id="fetch_multi-85"><a href="#fetch_multi-85"><span class="linenos"> 85</span></a><span class="sd">                Each row should contain the necessary identifiers to fetch the dataset.</span>
+</span><span id="fetch_multi-86"><a href="#fetch_multi-86"><span class="linenos"> 86</span></a><span class="sd">                The columns will be &#39;flow_id&#39;, plus the ABS dimensions relevant to the flow.</span>
+</span><span id="fetch_multi-87"><a href="#fetch_multi-87"><span class="linenos"> 87</span></a><span class="sd">                The &#39;flow_id&#39; column is mandatory, and the rest are optional.</span>
+</span><span id="fetch_multi-88"><a href="#fetch_multi-88"><span class="linenos"> 88</span></a><span class="sd">                Note: the DataFrame index is not used in the fetching process.</span>
+</span><span id="fetch_multi-89"><a href="#fetch_multi-89"><span class="linenos"> 89</span></a><span class="sd">        validate: If True, the function will validate dimensions and values against</span>
+</span><span id="fetch_multi-90"><a href="#fetch_multi-90"><span class="linenos"> 90</span></a><span class="sd">                  the ABS SDMX API codelists. Defaults to False.</span>
+</span><span id="fetch_multi-91"><a href="#fetch_multi-91"><span class="linenos"> 91</span></a><span class="sd">        **kwargs: Additional keyword arguments passed to the underlying data fetching function.</span>
+</span><span id="fetch_multi-92"><a href="#fetch_multi-92"><span class="linenos"> 92</span></a>
+</span><span id="fetch_multi-93"><a href="#fetch_multi-93"><span class="linenos"> 93</span></a><span class="sd">    Returns:</span>
+</span><span id="fetch_multi-94"><a href="#fetch_multi-94"><span class="linenos"> 94</span></a><span class="sd">        A tuple containing two DataFrames:</span>
+</span><span id="fetch_multi-95"><a href="#fetch_multi-95"><span class="linenos"> 95</span></a><span class="sd">        - The first DataFrame contains the fetched data.</span>
+</span><span id="fetch_multi-96"><a href="#fetch_multi-96"><span class="linenos"> 96</span></a><span class="sd">        - The second DataFrame contains metadata about the fetched datasets.</span>
+</span><span id="fetch_multi-97"><a href="#fetch_multi-97"><span class="linenos"> 97</span></a>
+</span><span id="fetch_multi-98"><a href="#fetch_multi-98"><span class="linenos"> 98</span></a><span class="sd">    Raises:</span>
+</span><span id="fetch_multi-99"><a href="#fetch_multi-99"><span class="linenos"> 99</span></a><span class="sd">        ValueError: If the &#39;flow_id&#39; column is missing from the `wanted` DataFrame.</span>
+</span><span id="fetch_multi-100"><a href="#fetch_multi-100"><span class="linenos">100</span></a>
+</span><span id="fetch_multi-101"><a href="#fetch_multi-101"><span class="linenos">101</span></a><span class="sd">    Note:</span>
+</span><span id="fetch_multi-102"><a href="#fetch_multi-102"><span class="linenos">102</span></a><span class="sd">        CacheError and HttpError are raised by the fetch function.</span>
+</span><span id="fetch_multi-103"><a href="#fetch_multi-103"><span class="linenos">103</span></a><span class="sd">        These will be caught and reported to standard output.</span>
+</span><span id="fetch_multi-104"><a href="#fetch_multi-104"><span class="linenos">104</span></a>
+</span><span id="fetch_multi-105"><a href="#fetch_multi-105"><span class="linenos">105</span></a><span class="sd">    Caution:</span>
+</span><span id="fetch_multi-106"><a href="#fetch_multi-106"><span class="linenos">106</span></a><span class="sd">        The selected data should all have the same index. You cannot mix (for example)</span>
+</span><span id="fetch_multi-107"><a href="#fetch_multi-107"><span class="linenos">107</span></a><span class="sd">        Quarterly and Monthly data in the same DataFrame.</span>
+</span><span id="fetch_multi-108"><a href="#fetch_multi-108"><span class="linenos">108</span></a>
+</span><span id="fetch_multi-109"><a href="#fetch_multi-109"><span class="linenos">109</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="fetch_multi-110"><a href="#fetch_multi-110"><span class="linenos">110</span></a>    <span class="c1"># --- quick sanity checks</span>
+</span><span id="fetch_multi-111"><a href="#fetch_multi-111"><span class="linenos">111</span></a>    <span class="k">if</span> <span class="n">wanted</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+</span><span id="fetch_multi-112"><a href="#fetch_multi-112"><span class="linenos">112</span></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;wanted DataFrame is empty, returning empty DataFrames.&quot;</span><span class="p">)</span>
+</span><span id="fetch_multi-113"><a href="#fetch_multi-113"><span class="linenos">113</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+</span><span id="fetch_multi-114"><a href="#fetch_multi-114"><span class="linenos">114</span></a>    <span class="k">if</span> <span class="s2">&quot;flow_id&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">wanted</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+</span><span id="fetch_multi-115"><a href="#fetch_multi-115"><span class="linenos">115</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The &#39;flow_id&#39; column is required in the &#39;wanted&#39; DataFrame.&quot;</span><span class="p">)</span>
+</span><span id="fetch_multi-116"><a href="#fetch_multi-116"><span class="linenos">116</span></a>
+</span><span id="fetch_multi-117"><a href="#fetch_multi-117"><span class="linenos">117</span></a>    <span class="c1"># --- do the work</span>
+</span><span id="fetch_multi-118"><a href="#fetch_multi-118"><span class="linenos">118</span></a>    <span class="k">return</span> <span class="n">extract</span><span class="p">(</span><span class="n">wanted</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -618,7 +743,7 @@ sdmxabs    </h1>
             The columns will be 'flow_id', plus the ABS dimensions relevant to the flow.
             The 'flow_id' column is mandatory, and the rest are optional.
             Note: the DataFrame index is not used in the fetching process.
-    validate: If True, the function will validate the dimensions and values against
+    validate: If True, the function will validate dimensions and values against
               the ABS SDMX API codelists. Defaults to False.
     **kwargs: Additional keyword arguments passed to the underlying data fetching function.</p>
 
@@ -628,13 +753,203 @@ sdmxabs    </h1>
     - The second DataFrame contains metadata about the fetched datasets.</p>
 
 <p>Raises:
-    ValueError: If the 'flow_id' column is missing from the <code>wanted</code> DataFrame.
-    CacheError: If there is an issue with the cache.
-    HttpError: If there is an issue with the HTTP request.</p>
+    ValueError: If the 'flow_id' column is missing from the <code>wanted</code> DataFrame.</p>
+
+<p>Note:
+    CacheError and HttpError are raised by the fetch function.
+    These will be caught and reported to standard output.</p>
 
 <p>Caution:
     The selected data should all have the same index. You cannot mix (for example)
     Quarterly and Monthly data in the same DataFrame.</p>
+</div>
+
+
+                </section>
+                <section id="fetch_selection">
+                            <input id="fetch_selection-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">fetch_selection</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">criteria</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n"><a href="#MatchType">MatchType</a></span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="fetch_selection-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#fetch_selection"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_selection-139"><a href="#fetch_selection-139"><span class="linenos">139</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_selection</span><span class="p">(</span>
+</span><span id="fetch_selection-140"><a href="#fetch_selection-140"><span class="linenos">140</span></a>    <span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="fetch_selection-141"><a href="#fetch_selection-141"><span class="linenos">141</span></a>    <span class="n">criteria</span><span class="p">:</span> <span class="n">MatchCriteria</span><span class="p">,</span>
+</span><span id="fetch_selection-142"><a href="#fetch_selection-142"><span class="linenos">142</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+</span><span id="fetch_selection-143"><a href="#fetch_selection-143"><span class="linenos">143</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch data based on a selection criteria for items.</span>
+</span><span id="fetch_selection-144"><a href="#fetch_selection-144"><span class="linenos">144</span></a>
+</span><span id="fetch_selection-145"><a href="#fetch_selection-145"><span class="linenos">145</span></a><span class="sd">    Args:</span>
+</span><span id="fetch_selection-146"><a href="#fetch_selection-146"><span class="linenos">146</span></a><span class="sd">        flow_id (str): The ID of the data flow to fetch.</span>
+</span><span id="fetch_selection-147"><a href="#fetch_selection-147"><span class="linenos">147</span></a><span class="sd">        criteria (MatchCriteria): A sequence of match criteria to filter the data.</span>
+</span><span id="fetch_selection-148"><a href="#fetch_selection-148"><span class="linenos">148</span></a>
+</span><span id="fetch_selection-149"><a href="#fetch_selection-149"><span class="linenos">149</span></a><span class="sd">    Returns:</span>
+</span><span id="fetch_selection-150"><a href="#fetch_selection-150"><span class="linenos">150</span></a><span class="sd">        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the fetched data and metadata.</span>
+</span><span id="fetch_selection-151"><a href="#fetch_selection-151"><span class="linenos">151</span></a>
+</span><span id="fetch_selection-152"><a href="#fetch_selection-152"><span class="linenos">152</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="fetch_selection-153"><a href="#fetch_selection-153"><span class="linenos">153</span></a>    <span class="c1"># --- select items based on the criteria</span>
+</span><span id="fetch_selection-154"><a href="#fetch_selection-154"><span class="linenos">154</span></a>    <span class="n">selection</span> <span class="o">=</span> <span class="n">select_items</span><span class="p">(</span><span class="n">flow_id</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+</span><span id="fetch_selection-155"><a href="#fetch_selection-155"><span class="linenos">155</span></a>
+</span><span id="fetch_selection-156"><a href="#fetch_selection-156"><span class="linenos">156</span></a>    <span class="c1"># --- fetch the data using the selected items</span>
+</span><span id="fetch_selection-157"><a href="#fetch_selection-157"><span class="linenos">157</span></a>    <span class="k">return</span> <span class="n">fetch_multi</span><span class="p">(</span><span class="n">selection</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Fetch data based on a selection criteria for items.</p>
+
+<p>Args:
+    flow_id (str): The ID of the data flow to fetch.
+    criteria (MatchCriteria): A sequence of match criteria to filter the data.</p>
+
+<p>Returns:
+    tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the fetched data and metadata.</p>
+</div>
+
+
+                </section>
+                <section id="match_criterion">
+                            <input id="match_criterion-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">match_criterion</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">match_type</span><span class="p">:</span> <span class="n"><a href="#MatchType">MatchType</a></span> <span class="o">=</span> <span class="o">&lt;</span><span class="n"><a href="#MatchType.PARTIAL">MatchType.PARTIAL</a></span><span class="p">:</span> <span class="mi">2</span><span class="o">&gt;</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n"><a href="#MatchType">MatchType</a></span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="match_criterion-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#match_criterion"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="match_criterion-60"><a href="#match_criterion-60"><span class="linenos">60</span></a><span class="k">def</span><span class="w"> </span><span class="nf">match_criterion</span><span class="p">(</span>
+</span><span id="match_criterion-61"><a href="#match_criterion-61"><span class="linenos">61</span></a>    <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="match_criterion-62"><a href="#match_criterion-62"><span class="linenos">62</span></a>    <span class="n">dimension</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="match_criterion-63"><a href="#match_criterion-63"><span class="linenos">63</span></a>    <span class="n">match_type</span><span class="p">:</span> <span class="n">MatchType</span> <span class="o">=</span> <span class="n">MatchType</span><span class="o">.</span><span class="n">PARTIAL</span><span class="p">,</span>
+</span><span id="match_criterion-64"><a href="#match_criterion-64"><span class="linenos">64</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MatchItem</span><span class="p">:</span>
+</span><span id="match_criterion-65"><a href="#match_criterion-65"><span class="linenos">65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new match criterion for use in selection.</span>
+</span><span id="match_criterion-66"><a href="#match_criterion-66"><span class="linenos">66</span></a>
+</span><span id="match_criterion-67"><a href="#match_criterion-67"><span class="linenos">67</span></a><span class="sd">    Args:</span>
+</span><span id="match_criterion-68"><a href="#match_criterion-68"><span class="linenos">68</span></a><span class="sd">        pattern (str): The pattern to match.</span>
+</span><span id="match_criterion-69"><a href="#match_criterion-69"><span class="linenos">69</span></a><span class="sd">        dimension (str): The dimension to match against.</span>
+</span><span id="match_criterion-70"><a href="#match_criterion-70"><span class="linenos">70</span></a><span class="sd">        match_type (MatchType, optional): The type of match to perform. Defaults to MatchType.EXACT.</span>
+</span><span id="match_criterion-71"><a href="#match_criterion-71"><span class="linenos">71</span></a>
+</span><span id="match_criterion-72"><a href="#match_criterion-72"><span class="linenos">72</span></a><span class="sd">    Returns:</span>
+</span><span id="match_criterion-73"><a href="#match_criterion-73"><span class="linenos">73</span></a><span class="sd">        MatchElement: A tuple representing the match element.</span>
+</span><span id="match_criterion-74"><a href="#match_criterion-74"><span class="linenos">74</span></a>
+</span><span id="match_criterion-75"><a href="#match_criterion-75"><span class="linenos">75</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="match_criterion-76"><a href="#match_criterion-76"><span class="linenos">76</span></a>    <span class="k">return</span> <span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">match_type</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Create a new match criterion for use in selection.</p>
+
+<p>Args:
+    pattern (str): The pattern to match.
+    dimension (str): The dimension to match against.
+    match_type (MatchType, optional): The type of match to perform. Defaults to <a href="#MatchType.EXACT">MatchType.EXACT</a>.</p>
+
+<p>Returns:
+    MatchElement: A tuple representing the match element.</p>
+</div>
+
+
+                </section>
+                <section id="select_items">
+                            <input id="select_items-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">select_items</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">criteria</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="n"><a href="#MatchType">MatchType</a></span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
+
+                <label class="view-source-button" for="select_items-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#select_items"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="select_items-79"><a href="#select_items-79"><span class="linenos"> 79</span></a><span class="k">def</span><span class="w"> </span><span class="nf">select_items</span><span class="p">(</span>
+</span><span id="select_items-80"><a href="#select_items-80"><span class="linenos"> 80</span></a>    <span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="select_items-81"><a href="#select_items-81"><span class="linenos"> 81</span></a>    <span class="n">criteria</span><span class="p">:</span> <span class="n">MatchCriteria</span><span class="p">,</span>
+</span><span id="select_items-82"><a href="#select_items-82"><span class="linenos"> 82</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+</span><span id="select_items-83"><a href="#select_items-83"><span class="linenos"> 83</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the &#39;wanted&#39; Dataframe for use by fetch_multi() by matching data flow metadata.</span>
+</span><span id="select_items-84"><a href="#select_items-84"><span class="linenos"> 84</span></a>
+</span><span id="select_items-85"><a href="#select_items-85"><span class="linenos"> 85</span></a><span class="sd">    Args:</span>
+</span><span id="select_items-86"><a href="#select_items-86"><span class="linenos"> 86</span></a><span class="sd">        flow_id (str): The ID of the data flow to select items from.</span>
+</span><span id="select_items-87"><a href="#select_items-87"><span class="linenos"> 87</span></a><span class="sd">        criteria (MatchElements): A sequence of tuples containing the element name,</span>
+</span><span id="select_items-88"><a href="#select_items-88"><span class="linenos"> 88</span></a><span class="sd">            the value to match, and the match type (exact, partial, or regex).</span>
+</span><span id="select_items-89"><a href="#select_items-89"><span class="linenos"> 89</span></a>
+</span><span id="select_items-90"><a href="#select_items-90"><span class="linenos"> 90</span></a><span class="sd">    Returns:</span>
+</span><span id="select_items-91"><a href="#select_items-91"><span class="linenos"> 91</span></a><span class="sd">        pd.DataFrame: A DataFrame containing the selected items, which can be dropped</span>
+</span><span id="select_items-92"><a href="#select_items-92"><span class="linenos"> 92</span></a><span class="sd">            into the call of the function fetch_multi().</span>
+</span><span id="select_items-93"><a href="#select_items-93"><span class="linenos"> 93</span></a>
+</span><span id="select_items-94"><a href="#select_items-94"><span class="linenos"> 94</span></a><span class="sd">    Raises:</span>
+</span><span id="select_items-95"><a href="#select_items-95"><span class="linenos"> 95</span></a><span class="sd">        ValueError: If the flow_id is not valid or if no items match the criteria.</span>
+</span><span id="select_items-96"><a href="#select_items-96"><span class="linenos"> 96</span></a>
+</span><span id="select_items-97"><a href="#select_items-97"><span class="linenos"> 97</span></a><span class="sd">    Notes:</span>
+</span><span id="select_items-98"><a href="#select_items-98"><span class="linenos"> 98</span></a><span class="sd">    -   Should build a one line DataFrame. This Frame may select multiple data series,</span>
+</span><span id="select_items-99"><a href="#select_items-99"><span class="linenos"> 99</span></a><span class="sd">        when passed to fetch_multi. It also can be concatenated with other DataFrames</span>
+</span><span id="select_items-100"><a href="#select_items-100"><span class="linenos">100</span></a><span class="sd">        to build a larger selection.</span>
+</span><span id="select_items-101"><a href="#select_items-101"><span class="linenos">101</span></a><span class="sd">    -   If two match elements refer to the same dimension, only the `intersection` of the</span>
+</span><span id="select_items-102"><a href="#select_items-102"><span class="linenos">102</span></a><span class="sd">        matches will be returned.</span>
+</span><span id="select_items-103"><a href="#select_items-103"><span class="linenos">103</span></a>
+</span><span id="select_items-104"><a href="#select_items-104"><span class="linenos">104</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="select_items-105"><a href="#select_items-105"><span class="linenos">105</span></a>    <span class="c1"># --- some sanity checks</span>
+</span><span id="select_items-106"><a href="#select_items-106"><span class="linenos">106</span></a>    <span class="k">if</span> <span class="n">flow_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_flows</span><span class="p">():</span>
+</span><span id="select_items-107"><a href="#select_items-107"><span class="linenos">107</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid flow_id: </span><span class="si">{</span><span class="n">flow_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+</span><span id="select_items-108"><a href="#select_items-108"><span class="linenos">108</span></a>    <span class="n">dimensions</span> <span class="o">=</span> <span class="n">data_dimensions</span><span class="p">(</span><span class="n">flow_id</span><span class="p">)</span>
+</span><span id="select_items-109"><a href="#select_items-109"><span class="linenos">109</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">dimensions</span><span class="p">:</span>
+</span><span id="select_items-110"><a href="#select_items-110"><span class="linenos">110</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No dimensions found for flow_id: </span><span class="si">{</span><span class="n">flow_id</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+</span><span id="select_items-111"><a href="#select_items-111"><span class="linenos">111</span></a>
+</span><span id="select_items-112"><a href="#select_items-112"><span class="linenos">112</span></a>    <span class="c1"># --- lets build the codelist dictionary</span>
+</span><span id="select_items-113"><a href="#select_items-113"><span class="linenos">113</span></a>    <span class="n">return_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="select_items-114"><a href="#select_items-114"><span class="linenos">114</span></a>    <span class="k">for</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">match_type</span> <span class="ow">in</span> <span class="n">criteria</span><span class="p">:</span>
+</span><span id="select_items-115"><a href="#select_items-115"><span class="linenos">115</span></a>        <span class="k">if</span> <span class="n">dimension</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">:</span>
+</span><span id="select_items-116"><a href="#select_items-116"><span class="linenos">116</span></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimension &#39;</span><span class="si">{</span><span class="n">dimension</span><span class="si">}</span><span class="s2">&#39; not found for flow &#39;</span><span class="si">{</span><span class="n">flow_id</span><span class="si">}</span><span class="s2">&#39;; (skipping)&quot;</span><span class="p">)</span>
+</span><span id="select_items-117"><a href="#select_items-117"><span class="linenos">117</span></a>            <span class="k">continue</span>
+</span><span id="select_items-118"><a href="#select_items-118"><span class="linenos">118</span></a>        <span class="n">dim_dict</span> <span class="o">=</span> <span class="n">dimensions</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span>
+</span><span id="select_items-119"><a href="#select_items-119"><span class="linenos">119</span></a>        <span class="n">code_list_dict</span> <span class="o">=</span> <span class="n">get_code_list_dict</span><span class="p">(</span><span class="n">dimension</span><span class="p">,</span> <span class="n">dim_dict</span><span class="p">)</span>
+</span><span id="select_items-120"><a href="#select_items-120"><span class="linenos">120</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">code_list_dict</span><span class="p">:</span>
+</span><span id="select_items-121"><a href="#select_items-121"><span class="linenos">121</span></a>            <span class="k">continue</span>
+</span><span id="select_items-122"><a href="#select_items-122"><span class="linenos">122</span></a>
+</span><span id="select_items-123"><a href="#select_items-123"><span class="linenos">123</span></a>        <span class="n">codes</span> <span class="o">=</span> <span class="n">get_codes</span><span class="p">(</span><span class="n">code_list_dict</span><span class="p">,</span> <span class="n">pattern</span><span class="p">,</span> <span class="n">match_type</span><span class="p">)</span>
+</span><span id="select_items-124"><a href="#select_items-124"><span class="linenos">124</span></a>
+</span><span id="select_items-125"><a href="#select_items-125"><span class="linenos">125</span></a>        <span class="c1"># --- combine (as an intersection) with previous matches for this dimension</span>
+</span><span id="select_items-126"><a href="#select_items-126"><span class="linenos">126</span></a>        <span class="k">if</span> <span class="n">dimension</span> <span class="ow">in</span> <span class="n">return_dict</span><span class="p">:</span>
+</span><span id="select_items-127"><a href="#select_items-127"><span class="linenos">127</span></a>            <span class="n">previous</span> <span class="o">=</span> <span class="n">return_dict</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;+&quot;</span><span class="p">)</span>
+</span><span id="select_items-128"><a href="#select_items-128"><span class="linenos">128</span></a>            <span class="n">codes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">previous</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">codes</span><span class="p">)))</span>
+</span><span id="select_items-129"><a href="#select_items-129"><span class="linenos">129</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="n">codes</span><span class="p">:</span>
+</span><span id="select_items-130"><a href="#select_items-130"><span class="linenos">130</span></a>                <span class="k">del</span> <span class="n">return_dict</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span>  <span class="c1"># no matches, remove dimension</span>
+</span><span id="select_items-131"><a href="#select_items-131"><span class="linenos">131</span></a>        <span class="k">if</span> <span class="n">codes</span><span class="p">:</span>
+</span><span id="select_items-132"><a href="#select_items-132"><span class="linenos">132</span></a>            <span class="n">return_dict</span><span class="p">[</span><span class="n">dimension</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;+&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">codes</span><span class="p">)))</span>
+</span><span id="select_items-133"><a href="#select_items-133"><span class="linenos">133</span></a>
+</span><span id="select_items-134"><a href="#select_items-134"><span class="linenos">134</span></a>    <span class="c1"># --- return a DataFrame</span>
+</span><span id="select_items-135"><a href="#select_items-135"><span class="linenos">135</span></a>    <span class="n">return_dict</span><span class="p">[</span><span class="s2">&quot;flow_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_id</span>
+</span><span id="select_items-136"><a href="#select_items-136"><span class="linenos">136</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">return_dict</span><span class="p">])</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Build the 'wanted' Dataframe for use by fetch_multi() by matching data flow metadata.</p>
+
+<p>Args:
+    flow_id (str): The ID of the data flow to select items from.
+    criteria (MatchElements): A sequence of tuples containing the element name,
+        the value to match, and the match type (exact, partial, or regex).</p>
+
+<p>Returns:
+    pd.DataFrame: A DataFrame containing the selected items, which can be dropped
+        into the call of the function fetch_multi().</p>
+
+<p>Raises:
+    ValueError: If the flow_id is not valid or if no items match the criteria.</p>
+
+<p>Notes:</p>
+
+<ul>
+<li>Should build a one line DataFrame. This Frame may select multiple data series,
+when passed to fetch_multi. It also can be concatenated with other DataFrames
+to build a larger selection.</li>
+<li>If two match elements refer to the same dimension, only the <code>intersection</code> of the
+matches will be returned.</li>
+</ul>
 </div>
 
 
