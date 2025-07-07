@@ -13,10 +13,13 @@ import pandas as pd
 from sdmxabs.download_cache import GetFileKwargs
 from sdmxabs.xml_base import NAME_SPACES, URL_STEM, acquire_xml
 
+# --- constants
+FlowMetaDict = dict[str, dict[str, str]]  # useful type alias
+
 
 # --- functions
 @cache
-def data_flows(flow_id: str = "all", **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
+def data_flows(flow_id: str = "all", **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
     """Get the toplevel metadata from the ABS SDMX API.
 
     Args:
@@ -24,7 +27,8 @@ def data_flows(flow_id: str = "all", **kwargs: Unpack[GetFileKwargs]) -> pd.Data
         **kwargs: Additional keyword arguments passed to acquire_url().
 
     Returns:
-        pd.Series: A Series containing the dataflow IDs and names.
+        dict[str, dict[str, str]]: A dictionary containing the dataflow IDs
+            and their metadatain key=value pairs.
 
     Raises:
         HttpError: If there is an issue with the HTTP request.
@@ -34,28 +38,30 @@ def data_flows(flow_id: str = "all", **kwargs: Unpack[GetFileKwargs]) -> pd.Data
     """
     tree = acquire_xml(f"{URL_STEM}/dataflow/ABS/{flow_id}", **kwargs)
 
-    df = {}
+    d_flows: FlowMetaDict = {}
     for dataflow in tree.findall(".//str:Dataflow", NAME_SPACES):
-        attributes = dataflow.attrib.copy()
+        attributes: dict[str, str] = dataflow.attrib.copy()
         if "id" not in attributes:
             continue
         df_id = attributes.pop("id")
         name_elem = dataflow.find("com:Name", NAME_SPACES)
         df_name = name_elem.text if name_elem is not None else "(no name)"
         attributes["name"] = str(df_name)
-        df[df_id] = attributes
-    return pd.DataFrame(df).T.sort_index().rename_axis(index="dataflows")
-    # Note: The returned DataFrame has the dataflow IDs as the index and
-    # the attributes (like name, etc.) as columns.
+        d_flows[df_id] = attributes
+    return d_flows
 
 
 @cache
-def data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
+def data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
     """Get the data dimensions metadata from the ABS SDMX API.
 
     Args:
         flow_id (str): The ID of the dataflow to retrieve dimensions for.
         **kwargs: Additional keyword arguments passed to acquire_url().
+
+    Returns:
+        dict[str, dict[str, str]]: A dictionary containing the dimensions and
+            their metadata in key=value pairs.
 
     Raises:
         HttpError: If there is an issue with the HTTP request.
@@ -77,16 +83,21 @@ def data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> pd.DataFra
         ) is not None:
             contents = contents | enumer.attrib
         dimensions[dim_id] = contents
-    return pd.DataFrame(dimensions).T.rename_axis(index="dimensions")
+    return dimensions
 
 
 @cache
-def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
+def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
     """Get the code list metadata from the ABS SDMX API.
 
     Args:
         cl_id (str): The ID of the code list to retrieve.
         **kwargs: Additional keyword arguments passed to acquire_url().
+
+    Returns:
+        FlowMetaDict: A dictionary containing the codes and
+            their associated key=value pairs. A "name" key should always
+            be present. A "parent" key may also be present.
 
     Raises:
         HttpError: If there is an issue with the HTTP request.
@@ -96,27 +107,27 @@ def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> pd.DataFrame:
     """
     tree = acquire_xml(f"{URL_STEM}/codelist/ABS/{cl_id}", **kwargs)
 
-    codes = {}
+    codes: FlowMetaDict = {}
     for code in tree.findall(".//str:Code", NAME_SPACES):
-        code_id = code.get("id")
+        code_id = code.get("id", None)
         if code_id is None:
             continue
-        elements = {}
+        elements: dict[str, str] = {}
         name = code.find("com:Name", NAME_SPACES)
-        elements["name"] = name.text if name is not None else None
+        elements["name"] = str(name.text) if name is not None else "(missing)"
         parent = code.find("str:Parent", NAME_SPACES)
-        parent_id = None
+        parent_id = ""
         if parent is not None:
             ref = parent.find("Ref", NAME_SPACES)
             if ref is not None:
-                parent_id = ref.get("id")
+                parent_id = str(ref.get("id", ""))
             elements["parent"] = parent_id
         codes[code_id] = elements
 
-    return pd.DataFrame(codes).T.sort_index().rename_axis(index=cl_id)
+    return codes
 
 
-def problem_code(dim: str, value: str, required: pd.DataFrame) -> str:
+def check_code_value(dim: str, value: str, required: pd.DataFrame) -> str:
     """Check if a value for a dimension is in the codelist for the flow_id.
 
     Args:
@@ -128,11 +139,12 @@ def problem_code(dim: str, value: str, required: pd.DataFrame) -> str:
         str: The name of the codelist if the value is not found, otherwise an empty string.
 
     """
-    package = required.loc[dim, "package"]
-    if package and package == "codelist":
-        codelist_name = str(required.loc[dim, "id"])
-        if codelist_name and value not in code_lists(codelist_name).index:
-            return f"Code '{value}' for dimension '{dim}' is not valid for codelist '{codelist_name}'"
+    if "package" in required.columns and dim in required.index:
+        package = required.loc[dim, "package"]
+        if package == "codelist" and "id" in required.columns:
+            codelist_name = str(required.loc[dim, "id"])
+            if codelist_name and value not in code_lists(codelist_name):
+                return f"Code '{value}' for dimension '{dim}' is not found in codelist '{codelist_name}'"
     return ""  # empty string if no problem
 
 
@@ -162,7 +174,7 @@ def build_key(flow_id: str, dimensions: dict[str, str] | None, *, validate: bool
 
     """
     # --- check validity of inputs
-    if not flow_id or flow_id not in data_flows().index:
+    if not flow_id or flow_id not in data_flows():
         raise ValueError("A valid flow_id must be specified")
 
     if dimensions is None:
@@ -170,28 +182,33 @@ def build_key(flow_id: str, dimensions: dict[str, str] | None, *, validate: bool
 
     position = "position"
     required = data_dimensions(flow_id)
-    if required is None or required.empty or position not in required.columns:
+    if required is None or not required:
         return "all"
-    required[position] = required[position].astype(int)  # for the sort
+    required_df = pd.DataFrame.from_dict(required, orient="index")
+    del required
+    if position not in required_df:
+        return "all"
+    required_df[position] = required_df[position].astype(int)
+    required_df = required_df.sort_values(by=position)
 
     # --- build key using the required dimensions
     keys = []
     wrong = []
-    for dim in required.sort_values(position).index:
+    for dim in required_df.sort_values(by=position).index:
         if dim in dimensions:
             value = dimensions[dim]
-            issues = [problem_code(dim, v, required) for v in value.split("+")]
+            issues = [check_code_value(dim, v, required_df) for v in value.split("+")]
             issues = [i for i in issues if i]  # filter out empty strings
             if not issues:
                 keys.append(f"{value}")
                 continue
             wrong += issues
-        keys.append("")
+        keys.append("")  # empty-string means global match for this dimension
 
     # --- alert to any dimensional coding issues
     if validate:
-        missing = [k for k in required.index if k not in dimensions]
-        extra = [k for k in dimensions if k not in required.index]
+        missing = [k for k in required_df.index if k not in dimensions]
+        extra = [k for k in dimensions if k not in required_df.index]
         publish_alerts(flow_id, missing, extra, wrong)
 
     # --- if there are no keys, return "all"
@@ -200,49 +217,48 @@ def build_key(flow_id: str, dimensions: dict[str, str] | None, *, validate: bool
     return "all"
 
 
+# --- quick and dirty testing
 if __name__ == "__main__":
     # --- data_flows -- all dataflows
-    FLOWS = data_flows(modality="prefer_cache")
+    FLOWS = data_flows(modality="prefer-cache")
     print("Length:", len(FLOWS))
-    print("Columns:", FLOWS.columns)
-    print("Example rows:\n", FLOWS[FLOWS.name.str.contains("National Accounts")], sep="")
 
     # --- data_flows -- specific dataflow
-    FLOWS = data_flows(flow_id="WPI", modality="prefer_cache")
+    FLOWS = data_flows(flow_id="WPI", modality="prefer-cache")
     print(len(FLOWS))
     print(FLOWS)
 
     # --- data_dimensions
-    DIMENSIONS = data_dimensions("WPI", modality="prefer_cache")
+    DIMENSIONS = data_dimensions("WPI", modality="prefer-cache")
     print(len(DIMENSIONS))
     print(DIMENSIONS)
 
     # --- code lists
-    CODE_LISTS = code_lists("CL_WPI_MEASURES", modality="prefer_cache")
+    CODE_LISTS = code_lists("CL_WPI_MEASURES", modality="prefer-cache")
     print(len(CODE_LISTS))
     print(CODE_LISTS)
 
-    CODE_LISTS = code_lists("CL_WPI_PCI", modality="prefer_cache")
+    CODE_LISTS = code_lists("CL_WPI_PCI", modality="prefer-cache")
     print(len(CODE_LISTS))
     print(CODE_LISTS)
 
-    CODE_LISTS = code_lists("CL_SECTOR", modality="prefer_cache")
+    CODE_LISTS = code_lists("CL_SECTOR", modality="prefer-cache")
     print(len(CODE_LISTS))
     print(CODE_LISTS)
 
-    CODE_LISTS = code_lists("CL_ANZSIC_2006", modality="prefer_cache")
+    CODE_LISTS = code_lists("CL_ANZSIC_2006", modality="prefer-cache")
     print(len(CODE_LISTS))
     print(CODE_LISTS)
 
-    CODE_LISTS = code_lists("CL_TSEST", modality="prefer_cache")
+    CODE_LISTS = code_lists("CL_TSEST", modality="prefer-cache")
     print(len(CODE_LISTS))
     print(CODE_LISTS)
 
-    CODE_LISTS = code_lists("CL_STATE", modality="prefer_cache")
+    CODE_LISTS = code_lists("CL_STATE", modality="prefer-cache")
     print(len(CODE_LISTS))
     print(CODE_LISTS)
 
-    CODE_LISTS = code_lists("CL_FREQ", modality="prefer_cache")
+    CODE_LISTS = code_lists("CL_FREQ", modality="prefer-cache")
     print(len(CODE_LISTS))
     print(CODE_LISTS)
 
@@ -250,5 +266,5 @@ if __name__ == "__main__":
     KEY = build_key("WPI", {"FREQ": "Q", "REGION": "NSW", "MEASURES": "CPI"}, validate=True)
     print("Key:", KEY)
 
-    KEY = build_key("WPI", {"FREQ": "Q", "REGION": "1+2", "MEASURES": "CPI"}, validate=False)
+    KEY = build_key("WPI", {"FREQ": "T", "REGION": "1+2", "MEASURES": "CPI"}, validate=True)
     print("Key:", KEY)

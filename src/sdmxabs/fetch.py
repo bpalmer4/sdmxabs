@@ -1,13 +1,13 @@
 """Obtain data from the ABS SDMX API."""
 
-from typing import Unpack, cast
+from typing import Unpack
 from xml.etree.ElementTree import Element
 
 import numpy as np
 import pandas as pd
 
 from sdmxabs.download_cache import GetFileKwargs
-from sdmxabs.metadata import build_key, code_lists, data_dimensions
+from sdmxabs.flow_metadata import FlowMetaDict, build_key, code_lists, data_dimensions
 from sdmxabs.xml_base import NAME_SPACES, URL_STEM, acquire_xml
 
 
@@ -50,12 +50,37 @@ def get_series_data(xml_series: Element, meta: pd.Series) -> pd.Series:
     return series
 
 
-def get_meta_data(xml_series: Element, series_count: int, dims: pd.DataFrame) -> tuple[str, pd.Series]:
-    """Extract metadata from the XML tree for a given series."""
-    key_sets = ("SeriesKey", "Attributes")
-    meta_items = {}
+def decode_meta_value(meta_value: str, meta_id: str, dims: FlowMetaDict) -> str:
+    """Decode a metadata value based on its ID and the relevant ABS codelist."""
+    return_value = meta_value  # default to returning the raw value
+    if meta_id in dims and "id" in dims[meta_id] and "package" in dims[meta_id]:
+        cl_id = dims[meta_id]["id"]
+        cl_package_type = dims[meta_id]["package"]
+        if cl_id and cl_package_type == "codelist":
+            cl = code_lists(cl_id)
+            if meta_value in cl and "name" in cl[meta_value]:
+                return_value = cl[meta_value]["name"]
+    return return_value
+
+
+def get_series_meta_data(xml_series: Element, series_count: int, dims: FlowMetaDict) -> tuple[str, pd.Series]:
+    """Extract and decode metadata from the XML tree for one given series.
+
+    Args:
+        xml_series (Element): The XML element representing the series.
+        series_count (int): The index of the series in the XML tree.
+        dims (FlowMetaDict): Dictionary containing metadata dimensions and
+            their associated codelist names.
+
+    Returns:
+        tuple[str, pd.Series]: A tuple containing the series label and a Series
+            of metadata items for the series.
+
+    """
     item_count = 0
     keys = []
+    meta_items = {}
+    key_sets = ("SeriesKey", "Attributes")
     for key_set in key_sets:
         attribs = xml_series.find(f"gen:{key_set}", NAME_SPACES)
         if attribs is None:
@@ -63,32 +88,19 @@ def get_meta_data(xml_series: Element, series_count: int, dims: pd.DataFrame) ->
             continue
         for item in attribs.findall("gen:Value", NAME_SPACES):
             # --- get the metadata item ID and value, or create a placeholder if missing
-            meta_id = item.attrib.get("id", f"missing {series_count}-{item_count}")
-            meta_value = item.attrib.get("value", f"missing {series_count}-{item_count}")
+            meta_id = item.attrib.get("id", f"missing meta_id {series_count}-{item_count}")
+            meta_value = item.attrib.get("value", f"missing meta_value {series_count}-{item_count}")
             keys.append(meta_value)
-
-            # --- expand out the meta data to something
-            #     approaching human readable, if possible.
-            if meta_id in dims.index and "id" in dims.columns and "package" in dims.columns:
-                cl_id = dims.loc[meta_id, "id"]
-                cl_package = dims.loc[meta_id, "package"]
-                if cl_id and cl_package == "codelist":
-                    cl = code_lists(cl_id)
-                    if meta_value in cl.index and "name" in cl.columns and cl.loc[meta_value, "name"]:
-                        meta_value = cast("str", cl.loc[meta_value, "name"])
-
-            # --- add the metadata item to the dictionary
-            meta_items[meta_id] = meta_value
+            decoded_meta_value = decode_meta_value(meta_value, meta_id, dims)
+            meta_items[meta_id] = decoded_meta_value
             item_count += 1
 
-    # --- create a unique label for the series based on the keys
-    final_key = ".".join(keys)
+    final_key = ".".join(keys)  # create a unique label for the series
 
-    # --- and return
     return final_key, pd.Series(meta_items).rename(final_key)
 
 
-def populate(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
+def extract(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Extract data from the XML tree."""
     # Get the data dimensions for the flow_id, it provides entree to the metadata
     dims = data_dimensions(flow_id)
@@ -99,7 +111,7 @@ def populate(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
         if xml_series is None:
             print("No Series found in XML tree, skipping.")
             continue
-        label, dataset = get_meta_data(
+        label, dataset = get_series_meta_data(
             # python typing is not smart enough to know that
             # xml_series is an ElementTree
             xml_series,
@@ -147,26 +159,23 @@ def fetch(
     Raises:
         HttpError: If there is an issue with the HTTP request.
         CacheError: If there is an issue with the cache.
-        ValueError: If no XML tree is found in the response.
+        ValueError: If no XML root is found in the response.
 
     """
-    # --- prepare to get the XML tree from the ABS SDMX API
-    kwargs["modality"] = kwargs.get("modality", "prefer-cache")  # default prefer_cache
+    # --- prepare to get the XML root from the ABS SDMX API
+    kwargs["modality"] = kwargs.get("modality", "prefer-cache")
     key = build_key(
         flow_id,
         dims,
         validate=validate,
     )
-
-    # --- get the XML tree from the ABS SDMX API
     _not_implemented = constraints
     url = f"{URL_STEM}/data/{flow_id}/{key}"
-    tree = acquire_xml(url, **kwargs)
-
-    # --- extract and return metadata and data from the XML tree
-    return populate(flow_id, tree)
+    xml_root = acquire_xml(url, **kwargs)
+    return extract(flow_id, xml_root)
 
 
+# --- quick and dirty testing
 if __name__ == "__main__":
     # Example usage
     FLOW_ID = "WPI"

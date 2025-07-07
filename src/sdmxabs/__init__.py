@@ -2,14 +2,15 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from .data import fetch
 from .download_cache import (
     CacheError,
     GetFileKwargs,
     HttpError,
     ModalityType,
 )
-from .metadata import code_lists, data_dimensions, data_flows
+from .fetch import fetch
+from .fetch_multi import fetch_multi
+from .flow_metadata import code_lists, data_dimensions, data_flows
 
 # --- version and author
 try:
@@ -30,4 +31,5 @@ __all__ = [
     "data_dimensions",
     "data_flows",
     "fetch",
+    "fetch_multi",
 ]
