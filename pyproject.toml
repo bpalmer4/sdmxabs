@@ -1,6 +1,6 @@
 [project]
 name = "sdmxabs"
-version = "0.1.2"
+version = "0.1.3"
 description = "Download data from the Australian Bureau of Statistics (ABS) using its SDMX API"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -60,7 +60,7 @@ lint.ignore = [
     "D213",    # Multi-line docstring summary should start at the first line - recommended by ruff
     "EM101",   # Exception must not use a string literal
     "EM102",   # Exception must not use an f-string literal
-    "T201",    # Remove `print` - I use print to alert the user
+    "T201",    # Remove `print` --> But I use print to alert the user
     "TRY003",  # Long exception messages.
 ]
 

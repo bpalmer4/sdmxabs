@@ -16,6 +16,8 @@ def extract(
 
     Args:
         wanted (pd.DataFrame): DataFrame containing the dimensions to fetch.
+                               DataFrame cells with NAN values will be ignored.
+                               The DataFrame must have a populated 'flow_id' column.
         validate (bool): If True, the function will validate the dimensions and values
                          against the ABS SDMX API codelists. Defaults to False.
         **kwargs: Additional keyword arguments passed to the underlying data fetching function.
@@ -38,8 +40,8 @@ def extract(
 
     # --- loop over the rows of the wanted DataFrame
     for _index, row in wanted.iterrows():
-        # --- get the arguments for the fetch
-        row_dict: dict[str, str] = row.to_dict()
+        # --- get the arguments for the fetch (ignoring NaN values)
+        row_dict: dict[str, str] = row.dropna().to_dict()
         flow_id = row_dict.pop("flow_id", "")
         if not flow_id:
             # --- if there is no flow_id, we will skip this row

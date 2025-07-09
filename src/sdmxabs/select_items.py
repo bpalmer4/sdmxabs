@@ -3,9 +3,11 @@
 import re
 from collections.abc import Sequence
 from enum import Enum
+from typing import Unpack
 
 import pandas as pd
 
+from sdmxabs.download_cache import GetFileKwargs
 from sdmxabs.fetch_multi import fetch_multi
 from sdmxabs.flow_metadata import FlowMetaDict, code_lists, data_dimensions, data_flows
 
@@ -19,8 +21,27 @@ class MatchType(Enum):
     REGEX = 3
 
 
-MatchItem = tuple[str, str, MatchType]
-MatchCriteria = Sequence[MatchItem]
+MatchItem = tuple[str, str, MatchType]  # pattern, dimension, MatchType
+MatchCriteria = Sequence[MatchItem]  # Sequence of tuples containing (pattern, dimension, MatchType)
+
+
+def package_codes(codes: list[str], dimension: str, return_dict: dict[str, str]) -> None:
+    """Package the codes into the return dictionary for a given dimension.
+
+    If the dimension already exists in the return_dict, we will intersect the newly
+    identified  codes with the existing codes. If the intersection is a null set, the
+    dimension will be removed from the return_dict (ie. the global match).
+
+    Note: multiple matched codes are separated by a '+' sign in the return_dict.
+
+    """
+    if dimension in return_dict:
+        previous = return_dict[dimension].split("+")
+        codes = list(set(previous).intersection(set(codes)))
+        if not codes:
+            del return_dict[dimension]  # no matches, remove dimension
+    if codes:
+        return_dict[dimension] = "+".join(list(set(codes)))
 
 
 # --- private functions
@@ -38,21 +59,13 @@ def get_codes(
                 if name == pattern:
                     codes.append(code)
             case MatchType.PARTIAL:
-                if pattern in name:
+                # Case-insensitive partial match
+                if pattern.lower() in name.lower():
                     codes.append(code)
             case MatchType.REGEX:
                 if re.match(pattern, name):
                     codes.append(code)
     return codes
-
-
-def get_code_list_dict(dimension: str, dim_dict: dict[str, str]) -> FlowMetaDict:
-    """Get the codelist dictionary for a given dimension."""
-    if "package" not in dim_dict or dim_dict["package"] != "codelist" or "id" not in dim_dict:
-        print(f"Dimension '{dimension}' does not have a codelist; (skipping)")
-        return {}
-    code_list_name = dim_dict.get("id")
-    return code_lists(code_list_name)
 
 
 # --- public functions
@@ -79,7 +92,7 @@ def select_items(
     flow_id: str,
     criteria: MatchCriteria,
 ) -> pd.DataFrame:
-    """Build the 'wanted' Dataframe for use by fetch_multi() by matching data flow metadata.
+    """Build the `wanted` Dataframe for use by fetch_multi() by matching flow metadata.
 
     Args:
         flow_id (str): The ID of the data flow to select items from.
@@ -115,45 +128,40 @@ def select_items(
             print(f"Dimension '{dimension}' not found for flow '{flow_id}'; (skipping)")
             continue
         dim_dict = dimensions[dimension]
-        code_list_dict = get_code_list_dict(dimension, dim_dict)
-        if not code_list_dict:
+        if "package" not in dim_dict or dim_dict["package"] != "codelist" or "id" not in dim_dict:
+            print(f"Dimension '{dimension}' does not have a codelist; (skipping)")
             continue
+        code_list_name = dim_dict.get("id")
+        codes = get_codes(code_lists(code_list_name), pattern, match_type)
+        package_codes(codes, dimension, return_dict)
 
-        codes = get_codes(code_list_dict, pattern, match_type)
-
-        # --- combine (as an intersection) with previous matches for this dimension
-        if dimension in return_dict:
-            previous = return_dict[dimension].split("+")
-            codes = list(set(previous).intersection(set(codes)))
-            if not codes:
-                del return_dict[dimension]  # no matches, remove dimension
-        if codes:
-            return_dict[dimension] = "+".join(list(set(codes)))
-
-    # --- return a DataFrame
+    # --- return as a (one row) `wanted` DataFrame
     return_dict["flow_id"] = flow_id
-    return pd.DataFrame([return_dict])
+    return pd.DataFrame([return_dict]).astype(str)
 
 
 def fetch_selection(
     flow_id: str,
     criteria: MatchCriteria,
+    *,
+    validate: bool = False,
+    **kwargs: Unpack[GetFileKwargs],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Fetch data based on a selection criteria for items.
 
     Args:
         flow_id (str): The ID of the data flow to fetch.
         criteria (MatchCriteria): A sequence of match criteria to filter the data.
+        validate (bool, optional): If True, validate the selection against the flow's
+            required dimensions. Defaults to False.
+        **kwargs: Additional keyword arguments for the fetch_multi function.
 
     Returns:
         tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the fetched data and metadata.
 
     """
-    # --- select items based on the criteria
     selection = select_items(flow_id, criteria)
-
-    # --- fetch the data using the selected items
-    return fetch_multi(selection)
+    return fetch_multi(selection, validate=validate, **kwargs)
 
 
 # --- quick and dirty testing

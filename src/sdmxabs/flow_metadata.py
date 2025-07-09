@@ -104,6 +104,10 @@ def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
         CacheError: If there is an issue with the cache.
         ValueError: If no XML root is found in the response.
 
+    Note:
+        You will get a CacheError if the codelist is not found on the ABS SDMX API.
+        (This package tries the website first, then the cache.)
+
     """
     tree = acquire_xml(f"{URL_STEM}/codelist/ABS/{cl_id}", **kwargs)
 
@@ -186,7 +190,8 @@ def build_key(flow_id: str, dimensions: dict[str, str] | None, *, validate: bool
         return "all"
     required_df = pd.DataFrame.from_dict(required, orient="index")
     del required
-    if position not in required_df:
+    required_df = required_df[required_df[position].notna()]
+    if required_df.empty or position not in required_df:
         return "all"
     required_df[position] = required_df[position].astype(int)
     required_df = required_df.sort_values(by=position)

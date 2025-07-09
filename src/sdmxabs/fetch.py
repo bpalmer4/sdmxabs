@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 
 from sdmxabs.download_cache import GetFileKwargs
-from sdmxabs.flow_metadata import FlowMetaDict, build_key, code_lists, data_dimensions
+from sdmxabs.flow_metadata import FlowMetaDict, build_key, code_lists, data_dimensions, data_flows
 from sdmxabs.xml_base import NAME_SPACES, URL_STEM, acquire_xml
 
 
@@ -63,10 +63,13 @@ def decode_meta_value(meta_value: str, meta_id: str, dims: FlowMetaDict) -> str:
     return return_value
 
 
-def get_series_meta_data(xml_series: Element, series_count: int, dims: FlowMetaDict) -> tuple[str, pd.Series]:
+def get_series_meta_data(
+    flow_id: str, xml_series: Element, series_count: int, dims: FlowMetaDict
+) -> tuple[str, pd.Series]:
     """Extract and decode metadata from the XML tree for one given series.
 
     Args:
+        flow_id (str): The ID of the data flow to which the series belongs.
         xml_series (Element): The XML element representing the series.
         series_count (int): The index of the series in the XML tree.
         dims (FlowMetaDict): Dictionary containing metadata dimensions and
@@ -78,8 +81,9 @@ def get_series_meta_data(xml_series: Element, series_count: int, dims: FlowMetaD
 
     """
     item_count = 0
-    keys = []
-    meta_items = {}
+    keys = [flow_id]
+    flow_name = data_flows().get(flow_id, {"name": flow_id})["name"]
+    meta_items = {"DATAFLOW": flow_name}  # start with the flow ID
     key_sets = ("SeriesKey", "Attributes")
     for key_set in key_sets:
         attribs = xml_series.find(f"gen:{key_set}", NAME_SPACES)
@@ -112,6 +116,7 @@ def extract(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
             print("No Series found in XML tree, skipping.")
             continue
         label, dataset = get_series_meta_data(
+            flow_id,
             # python typing is not smart enough to know that
             # xml_series is an ElementTree
             xml_series,
@@ -119,7 +124,7 @@ def extract(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
             dims,
         )
         if label in meta:
-            # this shoudl not happen, but if it does, skip the series
+            # this can happen if you implicitly select the same series multiple times
             print(f"Duplicate series {label} in {flow_id} found, skipping.")
             continue
         meta[label] = dataset
@@ -160,6 +165,10 @@ def fetch(
         HttpError: If there is an issue with the HTTP request.
         CacheError: If there is an issue with the cache.
         ValueError: If no XML root is found in the response.
+
+    Notes:
+        If the `dims` argument is not valid you will get a CacheError or HttpError.
+        If the `flow_id` is not valid, you will get a ValueError.
 
     """
     # --- prepare to get the XML root from the ABS SDMX API
