@@ -54,6 +54,10 @@ def get_codes(
     codes = []
     for code, code_list in code_list_dict.items():
         name = code_list.get("name", "")
+        if not name:
+            # should not happen.
+            print(f"Code {code} has no name; (skipping)")
+            continue
         match match_type:
             case MatchType.EXACT:
                 if name == pattern:
@@ -69,12 +73,12 @@ def get_codes(
 
 
 # --- public functions
-def match_criterion(
+def match_item(
     pattern: str,
     dimension: str,
     match_type: MatchType = MatchType.PARTIAL,
 ) -> MatchItem:
-    """Create a new match criterion for use in selection.
+    """Create a new MatchItem for use in select_items() and fetch_selection().
 
     Args:
         pattern (str): The pattern to match.
@@ -88,7 +92,7 @@ def match_criterion(
     return (pattern, dimension, match_type)
 
 
-def select_items(
+def make_wanted(
     flow_id: str,
     criteria: MatchCriteria,
 ) -> pd.DataFrame:
@@ -160,7 +164,7 @@ def fetch_selection(
         tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the fetched data and metadata.
 
     """
-    selection = select_items(flow_id, criteria)
+    selection = make_wanted(flow_id, criteria)
     return fetch_multi(selection, validate=validate, **kwargs)
 
 
@@ -168,21 +172,19 @@ def fetch_selection(
 if __name__ == "__main__":
     # --- specify a selection from the Wage Price Index (WPI) data flow
     mat_criteria = []
-    mat_criteria.append(match_criterion("Australia", "REGION", MatchType.EXACT))
+    mat_criteria.append(match_item("Australia", "REGION", MatchType.EXACT))
     mat_criteria.append(
-        match_criterion(
+        match_item(
             "Percentage change from corresponding quarter of previous year", "MEASURE", MatchType.EXACT
         )
     )
-    mat_criteria.append(
-        match_criterion("Total hourly rates of pay excluding bonuses", "INDEX", MatchType.PARTIAL)
-    )
-    mat_criteria.append(match_criterion("Seas|Trend", "TSEST", MatchType.REGEX))
-    mat_criteria.append(match_criterion("13-Industry aggregate", "INDUSTRY", MatchType.EXACT))
-    mat_criteria.append(match_criterion("Private and Public", "SECTOR", MatchType.EXACT))
+    mat_criteria.append(match_item("Total hourly rates of pay excluding bonuses", "INDEX", MatchType.PARTIAL))
+    mat_criteria.append(match_item("Seas|Trend", "TSEST", MatchType.REGEX))
+    mat_criteria.append(match_item("13-Industry aggregate", "INDUSTRY", MatchType.EXACT))
+    mat_criteria.append(match_item("Private and Public", "SECTOR", MatchType.EXACT))
 
     # --- test the selection
-    print(select_items("WPI", mat_criteria))
+    print(make_wanted("WPI", mat_criteria))
     data, meta = fetch_selection("WPI", mat_criteria)
     print(f"Number of data series: {len(meta)}")  # should be 2
     print(meta.T)  # should have the Trend and Seasonally Adjusted series

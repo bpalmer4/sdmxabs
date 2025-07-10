@@ -1,6 +1,6 @@
 [project]
 name = "sdmxabs"
-version = "0.1.3"
+version = "0.1.4"
 description = "Download data from the Australian Bureau of Statistics (ABS) using its SDMX API"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -30,6 +30,7 @@ dev = [
     "pdoc",
     "pylint",
     "ruff",
+    "nbqa",
     
     # - typing
     "pandas-stubs",
@@ -63,4 +64,5 @@ lint.ignore = [
     "T201",    # Remove `print` --> But I use print to alert the user
     "TRY003",  # Long exception messages.
 ]
-
+lint.per-file-ignores = { "test/*" = ["INP001"] }
+namespace-packages = ["src/sdmxabs"]

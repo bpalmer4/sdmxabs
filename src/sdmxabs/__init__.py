@@ -10,8 +10,8 @@ from .download_cache import (
 )
 from .fetch import fetch
 from .fetch_multi import fetch_multi
+from .fetch_selection import MatchCriteria, MatchItem, MatchType, fetch_selection, make_wanted, match_item
 from .flow_metadata import code_lists, data_dimensions, data_flows
-from .select_items import MatchCriteria, MatchItem, MatchType, fetch_selection, match_criterion, select_items
 
 # --- version and author
 try:
@@ -37,6 +37,6 @@ __all__ = [
     "fetch",
     "fetch_multi",
     "fetch_selection",
-    "match_criterion",
-    "select_items",
+    "make_wanted",
+    "match_item",
 ]

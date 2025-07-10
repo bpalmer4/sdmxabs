@@ -125,7 +125,7 @@ def extract(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
         )
         if label in meta:
             # this can happen if you implicitly select the same series multiple times
-            print(f"Duplicate series {label} in {flow_id} found, skipping.")
+            print(f"Duplicate series {label} in {flow_id} found, check your specifications, skipping.")
             continue
         meta[label] = dataset
         series = get_series_data(xml_series, dataset)
@@ -153,6 +153,7 @@ def fetch(
             which can be slow.
         constraints (dict[str, str], optional): A dictionary of constraints to apply
             to the data items. If None, no constraints are applied.
+            [Not implemented yet, will raise NotImplementedError if used.]
         validate (bool): If True, print validation diagnostics for the proposed
             dimensions against the metadata requirements. Defaults to False.
         **kwargs (GetFileKwargs): Additional keyword arguments passed to acquire_xml().
@@ -165,12 +166,19 @@ def fetch(
         HttpError: If there is an issue with the HTTP request.
         CacheError: If there is an issue with the cache.
         ValueError: If no XML root is found in the response.
+        NotImplementedError: If constraints are provided, as they are not implemented yet.
 
     Notes:
-        If the `dims` argument is not valid you will get a CacheError or HttpError.
-        If the `flow_id` is not valid, you will get a ValueError.
+        If the `dims` argument is not valid you should get a CacheError or HttpError.
+        If the `flow_id` is not valid, you should get a ValueError.
 
     """
+    # --- deal with the not implemented constraints
+    if constraints is not None:
+        raise NotImplementedError(
+            "Constraints are not implemented yet. Please use the `dims` argument to select data items."
+        )
+
     # --- prepare to get the XML root from the ABS SDMX API
     kwargs["modality"] = kwargs.get("modality", "prefer-cache")
     key = build_key(
@@ -178,7 +186,6 @@ def fetch(
         dims,
         validate=validate,
     )
-    _not_implemented = constraints
     url = f"{URL_STEM}/data/{flow_id}/{key}"
     xml_root = acquire_xml(url, **kwargs)
     return extract(flow_id, xml_root)
