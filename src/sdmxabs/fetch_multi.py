@@ -1,5 +1,6 @@
 """Fetch multiple datasets from the SDMX API."""
 
+from io import StringIO
 from typing import Unpack
 
 import pandas as pd
@@ -7,10 +8,41 @@ import pandas as pd
 from sdmxabs.download_cache import CacheError, GetFileKwargs, HttpError
 from sdmxabs.fetch import fetch
 
-
 # --- private function
-def extract(
-    wanted: pd.DataFrame, *, validate: bool = False, **kwargs: Unpack[GetFileKwargs]
+IndexInformation = tuple[type, str | None]  # (Index type, frequency if PeriodIndex)
+
+
+def _validate_index_compatibility(
+    data: pd.DataFrame, reference_index_info: IndexInformation | None
+) -> IndexInformation:
+    """Validate that the index of the current DataFrame is compatible with the reference index."""
+    # establish the index information for the current DataFrame
+    if isinstance(data.index, pd.PeriodIndex):
+        current_index_info: IndexInformation = (type(data.index), data.index.freqstr)
+    else:
+        current_index_info = (type(data.index), None)
+
+    # if this is the first DataFrame, set the reference index info
+    if reference_index_info is None:
+        reference_index_info = current_index_info
+
+    # if this is not the first DataFrame, check for index compatibility
+    elif current_index_info != reference_index_info:
+        raise ValueError(
+            f"Index mismatch: cannot mix {reference_index_info} "
+            f"with {current_index_info}. "
+            f"All datasets must have the same index type (e.g., all quarterly or all monthly data)."
+        )
+
+    return reference_index_info
+
+
+def _extract(
+    wanted: pd.DataFrame,
+    parameters: dict[str, str] | None,
+    *,
+    validate: bool = False,
+    **kwargs: Unpack[GetFileKwargs],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:  # data / metadata
     """Extract the data and metadata for each row in the dimensions DataFrame.
 
@@ -18,6 +50,8 @@ def extract(
         wanted (pd.DataFrame): DataFrame containing the dimensions to fetch.
                                DataFrame cells with NAN values will be ignored.
                                The DataFrame must have a populated 'flow_id' column.
+        parameters (dict[str, str] | None): Additional parameters to pass to the fetch function.
+                                           If None, no additional parameters are used.
         validate (bool): If True, the function will validate the dimensions and values
                          against the ABS SDMX API codelists. Defaults to False.
         **kwargs: Additional keyword arguments passed to the underlying data fetching function.
@@ -27,7 +61,8 @@ def extract(
                                         a DataFrame with the metadata.
 
     Raises:
-        ValueError: if any input data is not as expected.
+        ValueError: if any input data is not as expected, or if incompatible
+                   index types are detected (e.g., mixing quarterly and monthly data).
 
     Note: CacheError and HttpError are raised by the fetch function.
           These will be caught and reported to standard output.
@@ -37,6 +72,7 @@ def extract(
     return_meta = {}
     return_data = {}
     counter = 0
+    reference_index_info: IndexInformation | None = None
 
     # --- loop over the rows of the wanted DataFrame
     for _index, row in wanted.iterrows():
@@ -50,7 +86,7 @@ def extract(
 
         # --- fetch the data and meta data for each row of the selection table
         try:
-            data, meta = fetch(flow_id, dims=row_dict, validate=validate, **kwargs)
+            data, meta = fetch(flow_id, dims=row_dict, parameters=parameters, validate=validate, **kwargs)
         except (CacheError, HttpError, ValueError) as e:
             # --- if there is an error, we will skip this row
             print(f"Error fetching {flow_id} with dimensions {row_dict}: {e}")
@@ -59,6 +95,9 @@ def extract(
             # --- this should not happen, but if it does, we will skip this row
             print(f"No data for {flow_id} with dimensions {row_dict}")
             continue
+
+        # --- validate index compatibility - including frequency compatibility for PeriodIndex
+        reference_index_info = _validate_index_compatibility(data, reference_index_info)
 
         # --- manage duplicates
         for col in data.columns:
@@ -75,6 +114,7 @@ def extract(
 # --- public function
 def fetch_multi(
     wanted: pd.DataFrame,
+    parameters: dict[str, str] | None = None,
     *,
     validate: bool = False,
     **kwargs: Unpack[GetFileKwargs],
@@ -87,6 +127,7 @@ def fetch_multi(
                 The columns will be 'flow_id', plus the ABS dimensions relevant to the flow.
                 The 'flow_id' column is mandatory, and the rest are optional.
                 Note: the DataFrame index is not used in the fetching process.
+        parameters: A dictionary of additional parameters to pass to the fetch function.
         validate: If True, the function will validate dimensions and values against
                   the ABS SDMX API codelists. Defaults to False.
         **kwargs: Additional keyword arguments passed to the underlying data fetching function.
@@ -103,11 +144,17 @@ def fetch_multi(
         CacheError and HttpError are raised by the fetch function.
         These will be caught and reported to standard output.
 
-    Caution:
-        The selected data should all have the same index. You cannot mix (for example)
-        Quarterly and Monthly data in the same DataFrame.
+    Note:
+        The function validates that all datasets have compatible index types.
+        A ValueError will be raised if incompatible index types are detected
+        (e.g., mixing quarterly and monthly data).
 
     """
+    # --- debugging output
+    verbose = kwargs.get("verbose", False)
+    if verbose:
+        print(f"fetch_multi(): {wanted=}, {parameters=}, {validate=}, {kwargs=}")
+
     # --- quick sanity checks
     if wanted.empty:
         print("wanted DataFrame is empty, returning empty DataFrames.")
@@ -116,4 +163,33 @@ def fetch_multi(
         raise ValueError("The 'flow_id' column is required in the 'wanted' DataFrame.")
 
     # --- do the work
-    return extract(wanted, validate=validate, **kwargs)
+    return _extract(wanted, parameters, validate=validate, **kwargs)
+
+
+if __name__ == "__main__":
+
+    def module_test() -> None:
+        """Run a simple test of the module."""
+        wanted_text = """
+        flow_id, MEASURE, INDEX, TSEST, REGION, DATA_ITEM, SECTOR, FREQ
+        CPI,           3, 10001,    10,     50,         -,      -,    Q
+        CPI,           3, 999902,   20,     50,         -,      -,    Q
+        CPI,           3, 999903,   20,     50,         -,      -,    Q
+        ANA_EXP,     DCH,      -,   20,    AUS,       FCE,    PHS,    Q
+        ANA_EXP, PCT_DCH,      -,   20,    AUS,       FCE,    PHS,    Q
+        """
+        wanted = pd.read_csv(StringIO(wanted_text), dtype=str, skipinitialspace=True)
+        parameters = {"startPeriod": "2020-Q1", "endPeriod": "2020-Q4", "detail": "full"}
+        fetched_data, _fetched_meta = fetch_multi(
+            wanted,
+            parameters=parameters,
+            validate=False,
+            modality="prefer-url",
+        )
+        expected = (4, 5)
+        if fetched_data.shape == expected:
+            print(f"Test passed: {fetched_data.shape=}.")
+        else:
+            print(f"Test FAILED: data shape {fetched_data.shape} is unexpected {expected=}.")
+
+    module_test()

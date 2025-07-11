@@ -15,15 +15,23 @@ import requests
 # --- constants
 # define the default cache directory
 SDMXABS_CACHE_DIR = "./.sdmxabs_cache"
-SDMXABS_CACHE_DIR = getenv("READABS_CACHE_DIR", SDMXABS_CACHE_DIR)
+SDMXABS_CACHE_DIR = getenv("SDMXABS_CACHE_DIR", SDMXABS_CACHE_DIR)
 SDMXABS_CACHE_PATH = Path(SDMXABS_CACHE_DIR)
 
-DOWNLOAD_TIMEOUT = 120  # seconds
+# define the default download timeout
+# This is the time to wait for a response from the server before giving up.
+DOWNLOAD_TIMEOUT_DEFAULT = 120  # seconds
+DOWNLOAD_TIMEOUT_STR = getenv("SDMXABS_DOWNLOAD_TIMEOUT", str(DOWNLOAD_TIMEOUT_DEFAULT))  # seconds
+DOWNLOAD_TIMEOUT = (
+    int(DOWNLOAD_TIMEOUT_STR)
+    if DOWNLOAD_TIMEOUT_STR is not None and DOWNLOAD_TIMEOUT_STR.isdigit()
+    else DOWNLOAD_TIMEOUT_DEFAULT
+)
 
 
 # --- Classes
 class HttpError(Exception):
-    """A problem retrieving data from HTTP."""
+    """A problem retrieving data using HTTP."""
 
 
 class CacheError(Exception):
@@ -42,8 +50,8 @@ class GetFileKwargs(TypedDict):
     """Kind of retrieval: "prefer_cache", "prefer_url"."""
 
 
-# --- functions
-def check_for_bad_response(
+# --- private functions
+def _check_for_bad_response(
     url: str,
     response: requests.Response,
 ) -> None:
@@ -57,14 +65,14 @@ def check_for_bad_response(
         HttpError: If the response status code is not 200 or if the headers are None
 
     """
+    success_codes = (200, 201, 202, 204)  # HTTP success codes
     code = response.status_code
-    success = 200
-    if code != success or response.headers is None:
+    if code not in success_codes or response.headers is None:
         problem = f"Problem {code} accessing: {url}."
         raise HttpError(problem)
 
 
-def save_to_cache(
+def _save_to_cache(
     file_path: Path,
     contents: bytes,
     **kwargs: Unpack[GetFileKwargs],
@@ -72,19 +80,19 @@ def save_to_cache(
     """Save bytes to the file-system."""
     verbose = kwargs.get("verbose", False)
     if len(contents) == 0:
-        # dont save empty files (possibly caused by ignoring errors)
         return
+
+    file_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure parent dirs exist
+
     if file_path.exists():
-        if verbose:
-            print("Removing old cache file.")
         file_path.unlink()
+
     if verbose:
-        print(f"About to save to cache: {file_path}")
-    file_path.open(mode="w", buffering=-1, encoding=None, errors=None, newline=None)
-    file_path.write_bytes(contents)
+        print(f"Saving to cache: {file_path}")
+    file_path.write_bytes(contents)  # This handles file opening/closing automatically
 
 
-def request_get(
+def _request_get(
     url: str,
     file_path: Path,
     **kwargs: Unpack[GetFileKwargs],
@@ -99,19 +107,19 @@ def request_get(
     try:
         gotten = requests.get(url, allow_redirects=True, timeout=DOWNLOAD_TIMEOUT)
     except requests.exceptions.RequestException as e:
-        error = f"request_get(): there was a problem downloading {url} --> ({e})."
+        error = f"_request_get(): there was a problem downloading {url} --> ({e})."
         raise HttpError(error) from e
 
-    check_for_bad_response(url, gotten)  # exception on error
+    _check_for_bad_response(url, gotten)  # exception on error
 
     return_bytes = gotten.content
     if len(gotten.content) > 0:
-        save_to_cache(file_path, return_bytes, **kwargs)
+        _save_to_cache(file_path, return_bytes, **kwargs)
 
     return return_bytes
 
 
-def retrieve_from_cache(file: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
+def _retrieve_from_cache(file: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
     """Retrieve bytes from file-system."""
     verbose = kwargs.get("verbose", False)
 
@@ -124,37 +132,35 @@ def retrieve_from_cache(file: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
     return file.read_bytes()
 
 
-def get_data(url: str, file_path: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
+def _get_data(url: str, file_path: Path, **kwargs: Unpack[GetFileKwargs]) -> bytes:
     """Select the source of the file based on the modality."""
     # --- set arguments
-    verbose: bool = kwargs.get("verbose", False)
-    if verbose:
-        print(f"get_data called with: {kwargs}")
     modality: ModalityType = kwargs.get("modality", "prefer-cache")
 
     # --- prefer-cache
     tried_cache = False
     if file_path.exists() and file_path.is_file() and modality != "prefer-url":
         try:
-            text = retrieve_from_cache(file_path, **kwargs)
-            if len(text) > 0:
-                return text
+            content = _retrieve_from_cache(file_path, **kwargs)
+            if len(content) > 0:
+                return content
         except CacheError:
             pass
         tried_cache = True
 
     # --- prefer_url
     try:
-        return request_get(url, file_path, **kwargs)
+        return _request_get(url, file_path, **kwargs)
     except HttpError:
         if tried_cache:
             # if we tried the cache, then we have no choice but to raise the error
             raise
 
     # if we did not try the cache, then we can return the cached file
-    return retrieve_from_cache(file_path, **kwargs)
+    return _retrieve_from_cache(file_path, **kwargs)
 
 
+# --- protected functions - not for the user, but used outside this module
 def acquire_url(
     url: str,
     cache_dir: Path = SDMXABS_CACHE_PATH,
@@ -177,6 +183,10 @@ def acquire_url(
         HttpError: If there is a problem retrieving the URL.
 
     """
+    # --- debugging output
+    verbose: bool = kwargs.get("verbose", False)
+    if verbose:
+        print(f"acquire_url(): {url=}, {kwargs=}")
 
     def get_fpath() -> Path:
         """Convert URL string into a cache file name and return as a Path object."""
@@ -192,10 +202,9 @@ def acquire_url(
         msg = f"Cache path is not a directory: {cache_dir.name}"
         raise CacheError(msg)
 
-    return get_data(url, get_fpath(), **kwargs)
+    return _get_data(url, get_fpath(), **kwargs)
 
 
-# --- preliminary testing:
 if __name__ == "__main__":
 
     def cache_test() -> None:
@@ -204,23 +213,15 @@ if __name__ == "__main__":
         You may first want to clear the cache directory.
 
         """
-        # prepare the test case
-        url1 = (
-            "https://www.abs.gov.au/statistics/labour/employment-and-"
-            "unemployment/labour-force-australia/nov-2023/6202001.xlsx"
-        )
+        url1 = "https://data.api.abs.gov.au/rest/data/WPI?startPeriod=2024-Q1"
 
         # implement - first retrieval is from the web, second from the cache
-        width = 20
-        print("Test commencing.")
-        for u in (url1, url1):
-            print("=" * width)
-            content = acquire_url(u, verbose=True)
-            print("-" * width)
-            print(f"{len(content)} bytes retrieved from {u}.")
-        print("=" * width)
-        content = acquire_url(url1, verbose=True, modality="prefer-url")
-        print(f"Byte count: {len(content)}")
-        print("Test completed.")
+        try:
+            content = acquire_url(url1, modality="prefer-cache", verbose=False)
+            content = acquire_url(url1, modality="prefer-url", verbose=False)
+            content = acquire_url(url1, modality="prefer-cache", verbose=False)
+            print(f"Test Passed: {len(content)}")
+        except (ValueError, CacheError, HttpError) as e:
+            print(f"Test FAILED: Error acquiring URL: {e}")
 
     cache_test()
