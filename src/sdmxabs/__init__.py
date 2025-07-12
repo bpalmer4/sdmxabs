@@ -11,6 +11,7 @@ from .download_cache import (
 from .fetch import fetch
 from .fetch_gdp import fetch_gdp
 from .fetch_multi import fetch_multi
+from .fetch_pop import fetch_pop
 from .fetch_selection import MatchCriteria, MatchItem, MatchType, fetch_selection, make_wanted, match_item
 from .flow_metadata import code_lists, data_dimensions, data_flows
 
@@ -38,6 +39,7 @@ __all__ = [
     "fetch",
     "fetch_gdp",
     "fetch_multi",
+    "fetch_pop",
     "fetch_selection",
     "make_wanted",
     "match_item",
