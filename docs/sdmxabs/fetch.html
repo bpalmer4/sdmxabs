@@ -304,8 +304,8 @@
 </span><span id="L-213"><a href="#L-213"><span class="linenos">213</span></a><span class="sd">            - &#39;endPeriod&#39;: End period for data filtering (e.g., &#39;2023-Q4&#39;)</span>
 </span><span id="L-214"><a href="#L-214"><span class="linenos">214</span></a><span class="sd">            - &#39;detail&#39;: Level of detail (&#39;full&#39;, &#39;dataonly&#39;, &#39;serieskeysonly&#39;, &#39;nodata&#39;)</span>
 </span><span id="L-215"><a href="#L-215"><span class="linenos">215</span></a><span class="sd">            If None, no parameters are applied.</span>
-</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="sd">        validate (bool): If True, print validation diagnostics for the proposed</span>
-</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="sd">            dimensions against the metadata requirements. Defaults to False.</span>
+</span><span id="L-216"><a href="#L-216"><span class="linenos">216</span></a><span class="sd">        validate (bool, optional): If True, validate `dims` against the flow&#39;s</span>
+</span><span id="L-217"><a href="#L-217"><span class="linenos">217</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
 </span><span id="L-218"><a href="#L-218"><span class="linenos">218</span></a><span class="sd">        **kwargs (GetFileKwargs): Additional keyword arguments passed to acquire_xml().</span>
 </span><span id="L-219"><a href="#L-219"><span class="linenos">219</span></a>
 </span><span id="L-220"><a href="#L-220"><span class="linenos">220</span></a><span class="sd">    Returns: a tuple of two DataFrames:</span>
@@ -323,7 +323,7 @@
 </span><span id="L-232"><a href="#L-232"><span class="linenos">232</span></a><span class="sd">        If the `flow_id` is not valid, you should get a ValueError.</span>
 </span><span id="L-233"><a href="#L-233"><span class="linenos">233</span></a>
 </span><span id="L-234"><a href="#L-234"><span class="linenos">234</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>    <span class="c1"># --- debugging output</span>
+</span><span id="L-235"><a href="#L-235"><span class="linenos">235</span></a>    <span class="c1"># --- report the parameters used if requested</span>
 </span><span id="L-236"><a href="#L-236"><span class="linenos">236</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </span><span id="L-237"><a href="#L-237"><span class="linenos">237</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
 </span><span id="L-238"><a href="#L-238"><span class="linenos">238</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch(): </span><span class="si">{</span><span class="n">flow_id</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">dims</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">parameters</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -568,8 +568,8 @@
 </span><span id="fetch-214"><a href="#fetch-214"><span class="linenos">214</span></a><span class="sd">            - &#39;endPeriod&#39;: End period for data filtering (e.g., &#39;2023-Q4&#39;)</span>
 </span><span id="fetch-215"><a href="#fetch-215"><span class="linenos">215</span></a><span class="sd">            - &#39;detail&#39;: Level of detail (&#39;full&#39;, &#39;dataonly&#39;, &#39;serieskeysonly&#39;, &#39;nodata&#39;)</span>
 </span><span id="fetch-216"><a href="#fetch-216"><span class="linenos">216</span></a><span class="sd">            If None, no parameters are applied.</span>
-</span><span id="fetch-217"><a href="#fetch-217"><span class="linenos">217</span></a><span class="sd">        validate (bool): If True, print validation diagnostics for the proposed</span>
-</span><span id="fetch-218"><a href="#fetch-218"><span class="linenos">218</span></a><span class="sd">            dimensions against the metadata requirements. Defaults to False.</span>
+</span><span id="fetch-217"><a href="#fetch-217"><span class="linenos">217</span></a><span class="sd">        validate (bool, optional): If True, validate `dims` against the flow&#39;s</span>
+</span><span id="fetch-218"><a href="#fetch-218"><span class="linenos">218</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
 </span><span id="fetch-219"><a href="#fetch-219"><span class="linenos">219</span></a><span class="sd">        **kwargs (GetFileKwargs): Additional keyword arguments passed to acquire_xml().</span>
 </span><span id="fetch-220"><a href="#fetch-220"><span class="linenos">220</span></a>
 </span><span id="fetch-221"><a href="#fetch-221"><span class="linenos">221</span></a><span class="sd">    Returns: a tuple of two DataFrames:</span>
@@ -587,7 +587,7 @@
 </span><span id="fetch-233"><a href="#fetch-233"><span class="linenos">233</span></a><span class="sd">        If the `flow_id` is not valid, you should get a ValueError.</span>
 </span><span id="fetch-234"><a href="#fetch-234"><span class="linenos">234</span></a>
 </span><span id="fetch-235"><a href="#fetch-235"><span class="linenos">235</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="fetch-236"><a href="#fetch-236"><span class="linenos">236</span></a>    <span class="c1"># --- debugging output</span>
+</span><span id="fetch-236"><a href="#fetch-236"><span class="linenos">236</span></a>    <span class="c1"># --- report the parameters used if requested</span>
 </span><span id="fetch-237"><a href="#fetch-237"><span class="linenos">237</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </span><span id="fetch-238"><a href="#fetch-238"><span class="linenos">238</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
 </span><span id="fetch-239"><a href="#fetch-239"><span class="linenos">239</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch(): </span><span class="si">{</span><span class="n">flow_id</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">dims</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">parameters</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -639,8 +639,8 @@
         - 'endPeriod': End period for data filtering (e.g., '2023-Q4')
         - 'detail': Level of detail ('full', 'dataonly', 'serieskeysonly', 'nodata')
         If None, no parameters are applied.
-    validate (bool): If True, print validation diagnostics for the proposed
-        dimensions against the metadata requirements. Defaults to False.
+    validate (bool, optional): If True, validate <code>dims</code> against the flow's
+        required dimensions when generating the URL key. Defaults to False.
     **kwargs (GetFileKwargs): Additional keyword arguments passed to acquire_xml().</p>
 
 <p>Returns: a tuple of two DataFrames:

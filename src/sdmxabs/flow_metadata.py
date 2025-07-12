@@ -108,6 +108,10 @@ def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
         You will get a CacheError if the codelist is not found on the ABS SDMX API.
         (This package tries the website first, then the cache.)
 
+    Guarantees for the inner dictionary:
+        - The inner dictionary will always have a "name" key.
+        - The inner dictionary may have a "parent" key if the code has a parent.
+
     """
     tree = acquire_xml(f"{URL_STEM}/codelist/ABS/{cl_id}", **kwargs)
 
@@ -117,8 +121,16 @@ def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
         if code_id is None:
             continue
         elements: dict[str, str] = {}
+
+        # - get the name
         name = code.find("com:Name", NAME_SPACES)
-        elements["name"] = name.text if name is not None and name.text else "(missing)"
+        if name is None or not name.text:
+            # guarantee that we name key and value pair
+            print(f"Warning: Code {code_id} in {cl_id}has no name, skipping.")
+            continue  # skip if no name
+        elements["name"] = name.text
+
+        # - get the parent
         parent = code.find("str:Parent", NAME_SPACES)
         parent_id = ""
         if parent is not None:
@@ -131,6 +143,33 @@ def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
         codes[code_id] = elements
 
     return codes
+
+
+@cache
+def code_list_for_dim(flow_id: str, dim: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
+    """Get the code list for a specific dimension in a dataflow.
+
+    Args:
+        flow_id (str): The ID of the dataflow.
+        dim (str): The dimension ID to retrieve the code list for.
+        **kwargs: Additional keyword arguments passed to acquire_url().
+
+    Returns:
+        FlowMetaDict: A dictionary containing the codes and their metadata.
+
+    Raises:
+        ValueError: If the dimension is not found in the dataflow.
+
+    """
+    dimensions = data_dimensions(flow_id, **kwargs)
+    if dim not in dimensions:
+        raise ValueError(f"Dimension '{dim}' not found in flow '{flow_id}'")
+
+    codelist_id = dimensions[dim].get("id", "")
+    if not codelist_id:
+        raise ValueError(f"No codelist found for dimension '{dim}' in flow '{flow_id}'")
+
+    return code_lists(codelist_id, **kwargs)
 
 
 def validate_code_value(dim: str, value: str, required: pd.DataFrame) -> str:
@@ -244,32 +283,21 @@ if __name__ == "__main__":
         print(len(dimensions))
         print(dimensions)
 
-        # --- code lists
-        code_list_ = code_lists("CL_WPI_MEASURES", modality="prefer-cache")
+        # --- code list for dim
+        code_list_ = code_list_for_dim("WPI", "TSEST", modality="prefer-cache")
         print(len(code_list_))
         print(code_list_)
 
+        code_list_ = code_list_for_dim("ANA_AGG", "TSEST", modality="prefer-cache")
+        print(len(code_list_))
+        print(code_list_)
+
+        # --- code_lists
         code_list_ = code_lists("CL_WPI_PCI", modality="prefer-cache")
         print(len(code_list_))
         print(code_list_)
 
         code_list_ = code_lists("CL_SECTOR", modality="prefer-cache")
-        print(len(code_list_))
-        print(code_list_)
-
-        code_list_ = code_lists("CL_ANZSIC_2006", modality="prefer-cache")
-        print(len(code_list_))
-        print(code_list_)
-
-        code_list_ = code_lists("CL_TSEST", modality="prefer-cache")
-        print(len(code_list_))
-        print(code_list_)
-
-        code_list_ = code_lists("CL_STATE", modality="prefer-cache")
-        print(len(code_list_))
-        print(code_list_)
-
-        code_list_ = code_lists("CL_FREQ", modality="prefer-cache")
         print(len(code_list_))
         print(code_list_)
 

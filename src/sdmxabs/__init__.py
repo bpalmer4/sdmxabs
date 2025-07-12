@@ -9,6 +9,7 @@ from .download_cache import (
     ModalityType,
 )
 from .fetch import fetch
+from .fetch_gdp import fetch_gdp
 from .fetch_multi import fetch_multi
 from .fetch_selection import MatchCriteria, MatchItem, MatchType, fetch_selection, make_wanted, match_item
 from .flow_metadata import code_lists, data_dimensions, data_flows
@@ -35,6 +36,7 @@ __all__ = [
     "data_dimensions",
     "data_flows",
     "fetch",
+    "fetch_gdp",
     "fetch_multi",
     "fetch_selection",
     "make_wanted",

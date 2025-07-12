@@ -113,8 +113,8 @@
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">                               The DataFrame must have a populated &#39;flow_id&#39; column.</span>
 </span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">        parameters (dict[str, str] | None): Additional parameters to pass to the fetch function.</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">                                           If None, no additional parameters are used.</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">        validate (bool): If True, the function will validate the dimensions and values</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">                         against the ABS SDMX API codelists. Defaults to False.</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">        validate (bool, optional): If True, validate `wanted` against the flow&#39;s</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
 </span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">        **kwargs: Additional keyword arguments passed to the underlying data fetching function.</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
 </span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    Returns:</span>
@@ -211,7 +211,7 @@
 </span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="sd">        (e.g., mixing quarterly and monthly data).</span>
 </span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>
 </span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="c1"># --- debugging output</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>    <span class="c1"># --- report the parameters used if requested</span>
 </span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
 </span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch_multi(): </span><span class="si">{</span><span class="n">wanted</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">parameters</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -319,7 +319,7 @@
 </span><span id="fetch_multi-151"><a href="#fetch_multi-151"><span class="linenos">151</span></a><span class="sd">        (e.g., mixing quarterly and monthly data).</span>
 </span><span id="fetch_multi-152"><a href="#fetch_multi-152"><span class="linenos">152</span></a>
 </span><span id="fetch_multi-153"><a href="#fetch_multi-153"><span class="linenos">153</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="fetch_multi-154"><a href="#fetch_multi-154"><span class="linenos">154</span></a>    <span class="c1"># --- debugging output</span>
+</span><span id="fetch_multi-154"><a href="#fetch_multi-154"><span class="linenos">154</span></a>    <span class="c1"># --- report the parameters used if requested</span>
 </span><span id="fetch_multi-155"><a href="#fetch_multi-155"><span class="linenos">155</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </span><span id="fetch_multi-156"><a href="#fetch_multi-156"><span class="linenos">156</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
 </span><span id="fetch_multi-157"><a href="#fetch_multi-157"><span class="linenos">157</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch_multi(): </span><span class="si">{</span><span class="n">wanted</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">parameters</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2">, </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>

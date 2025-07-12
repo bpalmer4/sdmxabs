@@ -214,7 +214,7 @@ def fetch_selection(
         criteria (MatchCriteria): A sequence of match criteria to filter the data.
         parameters (dict[str, str] | None, optional): Additional parameters for the fetch.
         validate (bool, optional): If True, validate the selection against the flow's
-            required dimensions. Defaults to False.
+            required dimensions when generating the URL key. Defaults to False.
         **kwargs: Additional keyword arguments for the fetch_multi function.
 
     Returns:
@@ -224,6 +224,7 @@ def fetch_selection(
     verbose = kwargs.get("verbose", False)
     if verbose:
         print(f"fetch_selection(): {flow_id=} {criteria=} {parameters=} {validate=} {kwargs=}")
+
     selection = make_wanted(flow_id, criteria)
     return fetch_multi(selection, parameters, validate=validate, **kwargs)
 

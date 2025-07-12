@@ -18,14 +18,11 @@ dist/
 wheels/
 *.egg-info
 
-# cache files
-test/.sdmxabs_cache/
-test/.sdmxabs_cache/**
-src/sdmxabs/.sdmxcache_cache/
-src/sdmxabs/.sdmxabs_cache/**
+# cache files - wherever they occur
+.sdmxabs_cache/
 
 # test outputs
-test/CHARTS/**
+CHARTS/
 
 # Virtual environments
 .venv

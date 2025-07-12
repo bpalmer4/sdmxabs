@@ -183,11 +183,12 @@ def acquire_url(
         HttpError: If there is a problem retrieving the URL.
 
     """
-    # --- debugging output
+    # --- report the parameters used if requested
     verbose: bool = kwargs.get("verbose", False)
     if verbose:
         print(f"acquire_url(): {url=}, {kwargs=}")
 
+    # --- convert URL to a file path
     def get_fpath() -> Path:
         """Convert URL string into a cache file name and return as a Path object."""
         bad_cache_pattern = r'[~"#%&*:<>?\\{|}]+'  # chars to remove from name
@@ -196,7 +197,7 @@ def acquire_url(
         file_name = re.sub(bad_cache_pattern, "", f"{cache_prefix}--{hash_name}--{tail_name}")
         return Path(cache_dir / file_name)
 
-    # create and check cache_dir is a directory
+    # --- create and check cache_dir is a directory
     cache_dir.mkdir(parents=True, exist_ok=True)
     if not cache_dir.is_dir():
         msg = f"Cache path is not a directory: {cache_dir.name}"

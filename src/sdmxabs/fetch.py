@@ -213,8 +213,8 @@ def fetch(
             - 'endPeriod': End period for data filtering (e.g., '2023-Q4')
             - 'detail': Level of detail ('full', 'dataonly', 'serieskeysonly', 'nodata')
             If None, no parameters are applied.
-        validate (bool): If True, print validation diagnostics for the proposed
-            dimensions against the metadata requirements. Defaults to False.
+        validate (bool, optional): If True, validate `dims` against the flow's
+            required dimensions when generating the URL key. Defaults to False.
         **kwargs (GetFileKwargs): Additional keyword arguments passed to acquire_xml().
 
     Returns: a tuple of two DataFrames:
@@ -232,7 +232,7 @@ def fetch(
         If the `flow_id` is not valid, you should get a ValueError.
 
     """
-    # --- debugging output
+    # --- report the parameters used if requested
     verbose = kwargs.get("verbose", False)
     if verbose:
         print(f"fetch(): {flow_id=} {dims=} {parameters=} {validate=} {kwargs=}")

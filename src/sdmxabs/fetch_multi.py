@@ -52,8 +52,8 @@ def _extract(
                                The DataFrame must have a populated 'flow_id' column.
         parameters (dict[str, str] | None): Additional parameters to pass to the fetch function.
                                            If None, no additional parameters are used.
-        validate (bool): If True, the function will validate the dimensions and values
-                         against the ABS SDMX API codelists. Defaults to False.
+        validate (bool, optional): If True, validate `wanted` against the flow's
+            required dimensions when generating the URL key. Defaults to False.
         **kwargs: Additional keyword arguments passed to the underlying data fetching function.
 
     Returns:
@@ -150,7 +150,7 @@ def fetch_multi(
         (e.g., mixing quarterly and monthly data).
 
     """
-    # --- debugging output
+    # --- report the parameters used if requested
     verbose = kwargs.get("verbose", False)
     if verbose:
         print(f"fetch_multi(): {wanted=}, {parameters=}, {validate=}, {kwargs=}")
