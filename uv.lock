@@ -984,7 +984,7 @@ wheels = [
 
 [[package]]
 name = "sdmxabs"
-version = "0.1.7a1"
+version = "0.1.7"
 source = { editable = "." }
 dependencies = [
     { name = "defusedxml" },

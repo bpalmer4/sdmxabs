@@ -76,7 +76,6 @@ def refactor(data: pd.DataFrame | pd.Series, label: str) -> tuple[pd.DataFrame |
 
     # --- recalibrate value up (pulls factor down)
     while d.abs().to_numpy().min() < 1 and factor >= MIN_SAFE_FACTOR:
-        # the MIN_SAFE_FACTOR and the above check that factor is in INDICIES prevent excessive looping
         d = d * RECALIBRATION_THRESHOLD
         factor -= FACTOR_INCREMENT
 
@@ -118,12 +117,12 @@ def measure_names(meta: pd.DataFrame) -> pd.Series:
     for label, row in meta.iterrows():
         name: str = str(label)  # worst case scenario
         if "UNIT_MEASURE" in row:
-            name = str(row["UNIT_MEASURE"])
+            name = str(row["UNIT_MEASURE"])  # a better base case
         if row.get("UNIT_MULT"):
             try:
                 index = int(row["UNIT_MULT"])
                 if index in INDICIES and index > 0:
-                    name = f"{INDICIES[index]} {name}"
+                    name = f"{INDICIES[index]} {name}"  # best case
             except ValueError:
                 pass
         name = name.removesuffix(duplicate_number)

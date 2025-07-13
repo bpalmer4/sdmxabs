@@ -1,6 +1,6 @@
 [project]
 name = "sdmxabs"
-version = "0.1.7a1"
+version = "0.1.7"
 description = "Download data from the Australian Bureau of Statistics (ABS) using its SDMX API"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -64,5 +64,10 @@ lint.ignore = [
     "T201",    # Remove `print` --> But I use print to alert the user
     "TRY003",  # Long exception messages.
 ]
-lint.per-file-ignores = { "test/*" = ["INP001"] }
-namespace-packages = ["src/sdmxabs"]
+[tool.ruff.lint.per-file-ignores]
+"test/*" = [
+    "INP001",  # implicit-namespace-package - not relevant for Jupyter notebooks
+    "BLE001",  # catch-all exceptions - not useful in Jupyter notebooks
+    "E402",    # Module level import not at top of file - doesn't work with Notebooks
+    "PLR0913", # Too many arguments - not relevant for Jupyter notebooks
+]
