@@ -1,8 +1,4 @@
-"""Fetch Australian population data from the ABS SDMX API, either ERP or implied from National Accounts.
-
-The module also allows for a naive projection of the population data forward to the current quarter,
-based on the annual growth over the latest 12 months of data.
-"""
+"""Fetch Australian population data from the ABS SDMX API, either ERP or implied from National Accounts."""
 
 from typing import Literal, Unpack
 
@@ -69,35 +65,39 @@ def _na_population(
     d = pd.DataFrame(pop_s)
     d.columns = m.index = pd.Index([name])
     for k, v in {"UNIT_MEASURE": "NUM", "UNIT_MULT": "3", "DATA_ITEM": name}.items():
+        if k not in m.columns:
+            continue
         m.loc[name, k] = v
     return d, m
 
 
 def _make_projection(data: pd.DataFrame) -> pd.DataFrame:
-    """Make a projection of the population data forward to the current quarter."""
-    # --- validations
-    if data.empty:
-        raise ValueError("No data available to make a projection.")
+    """Make a naive projection of the population data forward to the current quarter.
 
+    Return original data if (for example) the data is empty or too old for a reasonable
+    projection. The projection is based on the annual growth over the latest quarters.
+
+    """
+    # --- validation/preparation
+    if data.empty:
+        return data  # No data to project
     current_quarter = pd.Timestamp.now().to_period("Q")
     last_period = data.index[-1]
-    if last_period >= current_quarter or last_period < current_quarter - LAST_QUARTER_TOO_OLD_FOR_PROJECTION:
-        raise ValueError(
-            f"Data is not recent enough for projection. "
-            f"Latest data is {last_period}, current quarter is {current_quarter}."
-        )
-
+    if last_period >= current_quarter:
+        return data  # No projection needed
+    if last_period < current_quarter - LAST_QUARTER_TOO_OLD_FOR_PROJECTION:
+        return data  # Too old for projection
     annual_growth: float = data[data.columns[0]].astype(float).pct_change(QUARTERS_IN_YEAR).iloc[-1]
     if np.isnan(annual_growth):
-        raise ValueError("Insufficient data to calculate annual growth for projection.")
-
-    # --- Make the projection
-    compound_growth_factor = (1 + annual_growth) ** (1 / QUARTERS_IN_YEAR)
+        return data  # No valid growth rate
     new_periods = pd.period_range(start=last_period + 1, end=current_quarter, freq="Q")
     if new_periods.empty:
         return data  # No new periods to project
+
+    # --- Make the projection
+    compound_q_growth_factor = (1 + annual_growth) ** (1 / QUARTERS_IN_YEAR)
     new_data = pd.Series(
-        data.iloc[-1, 0] * (compound_growth_factor ** np.arange(1, len(new_periods) + 1)), index=new_periods
+        data.iloc[-1, 0] * (compound_q_growth_factor ** np.arange(1, len(new_periods) + 1)), index=new_periods
     )
     return pd.DataFrame(data[data.columns[0]].combine_first(new_data))
 
@@ -120,8 +120,7 @@ def fetch_pop(
         parameters (dict[str, str] | None): Additional parameters for the API request,
             such as 'startPeriod'.
         projection (bool, optional): If True, and data is available for the most recent year,
-            make a projection forward to the current quarter, based on the latest growth
-            over 4 quarters.
+            make a projection forward to the current quarter, based on growth over the last 4 quarters.
         validate (bool, optional): If True, validate the selection against the flow's
             required dimensions when generating the URL key. Defaults to False.
         **kwargs: Additional arguments passed to the fetch_selection() function
@@ -155,8 +154,8 @@ if __name__ == "__main__":
 
     def test_fetch_pop() -> None:
         """Test function to fetch population data."""
-        parameters = {"startPeriod": "2020-Q1"}
-        pop_data, pop_meta = fetch_pop(source="na", parameters=parameters, projection=True)
+        parameters = {"startPeriod": "2024-Q4"}
+        pop_data, pop_meta = fetch_pop(source="na", parameters=parameters, projection=True, verbose=False)
         print(pop_data, "\n", pop_meta.T)
 
     test_fetch_pop()

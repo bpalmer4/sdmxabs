@@ -53,7 +53,7 @@ def data_flows(flow_id: str = "all", **kwargs: Unpack[GetFileKwargs]) -> FlowMet
 
 @cache
 def data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
-    """Get the data dimensions metadata from the ABS SDMX API.
+    """Get the data dimensions and attributes metadata from the ABS SDMX API.
 
     Args:
         flow_id (str): The ID of the dataflow to retrieve dimensions for.
@@ -68,22 +68,28 @@ def data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDi
         CacheError: If there is an issue with the cache.
         ValueError: If no XML root is found in the response.
 
+    Note:
+        The dimensions metadata includes a "position" for each dimmension.
+        The attributes metadata does not have "position" information.
+
     """
     tree = acquire_xml(f"{URL_STEM}/datastructure/ABS/{flow_id}", **kwargs)
 
-    dimensions = {}
-    for dim in tree.findall(".//str:Dimension", NAME_SPACES):
-        dim_id = dim.get("id")
-        dim_pos = dim.get("position")
-        if dim_id is None or dim_pos is None:
-            continue
-        contents = {"position": dim_pos}
-        if (lr := dim.find("str:LocalRepresentation", NAME_SPACES)) is not None and (
-            enumer := lr.find("str:Enumeration/Ref", NAME_SPACES)
-        ) is not None:
-            contents = contents | enumer.attrib
-        dimensions[dim_id] = contents
-    return dimensions
+    elements = {}
+    for ident in ["Dimension", "Attribute"]:
+        for elem in tree.findall(f".//str:{ident}", NAME_SPACES):
+            element_id = elem.get("id")
+            if element_id is None:
+                continue
+            contents = {}
+            if ident == "Dimension":
+                contents["position"] = elem.get("position", "")
+            if (lr := elem.find("str:LocalRepresentation", NAME_SPACES)) is not None and (
+                enumer := lr.find("str:Enumeration/Ref", NAME_SPACES)
+            ) is not None:
+                contents = contents | enumer.attrib
+            elements[element_id] = contents
+    return elements
 
 
 @cache
@@ -146,28 +152,28 @@ def code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
 
 
 @cache
-def code_list_for_dim(flow_id: str, dim: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
-    """Get the code list for a specific dimension in a dataflow.
+def code_list_for_dim(flow_id: str, dim_name: str, **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
+    """Get the code list for a specific dimension or attribute in a dataflow.
 
     Args:
         flow_id (str): The ID of the dataflow.
-        dim (str): The dimension ID to retrieve the code list for.
+        dim_name (str): The dimension ID to retrieve the code list for.
         **kwargs: Additional keyword arguments passed to acquire_url().
 
     Returns:
         FlowMetaDict: A dictionary containing the codes and their metadata.
 
     Raises:
-        ValueError: If the dimension is not found in the dataflow.
+        ValueError: If the dimension/attribute is not found in the dataflow.
 
     """
     dimensions = data_dimensions(flow_id, **kwargs)
-    if dim not in dimensions:
-        raise ValueError(f"Dimension '{dim}' not found in flow '{flow_id}'")
+    if dim_name not in dimensions:
+        raise ValueError(f"Dimension '{dim_name}' not found in flow '{flow_id}'")
 
-    codelist_id = dimensions[dim].get("id", "")
+    codelist_id = dimensions[dim_name].get("id", "")
     if not codelist_id:
-        raise ValueError(f"No codelist found for dimension '{dim}' in flow '{flow_id}'")
+        raise ValueError(f"No codelist found for dimension/attribute '{dim_name}' in flow '{flow_id}'")
 
     return code_lists(codelist_id, **kwargs)
 

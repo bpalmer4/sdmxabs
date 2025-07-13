@@ -27,6 +27,7 @@ FREQUENCY_MAPPING = {
 
 XML_KEY_SETS = ("SeriesKey", "Attributes")
 CODELIST_PACKAGE_TYPE = "codelist"
+DECODE_EXCLUSIONS = {"UNIT_MULT"}  # Metadata items that should not be decoded
 
 
 @dataclass
@@ -120,7 +121,10 @@ def _process_xml_attributes(xml_series: Element, key_set: str, context: Metadata
             "value", f"missing meta_value {context.series_count}-{context.item_count}"
         )
         context.label_elements.append(meta_value)
-        context.meta_items[meta_id] = _decode_meta_value(meta_value, meta_id, context.dims)
+        if meta_id not in DECODE_EXCLUSIONS:
+            context.meta_items[meta_id] = _decode_meta_value(meta_value, meta_id, context.dims)
+        else:
+            context.meta_items[meta_id] = meta_value
         context.item_count += 1
 
 
@@ -247,11 +251,7 @@ def fetch(
     # --- prepare to get the XML root from the ABS SDMX API
     # prefer fresh data every time
     kwargs["modality"] = kwargs.get("modality", "prefer-url")
-    key = build_key(
-        flow_id,
-        dims,
-        validate=validate,
-    )
+    key = build_key(flow_id, dims, validate=validate)
 
     # --- build URL with optional parameters
     url = f"{URL_STEM}/data/{flow_id}/{key}"

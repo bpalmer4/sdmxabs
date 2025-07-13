@@ -14,6 +14,7 @@ from .fetch_multi import fetch_multi
 from .fetch_pop import fetch_pop
 from .fetch_selection import MatchCriteria, MatchItem, MatchType, fetch_selection, make_wanted, match_item
 from .flow_metadata import code_lists, data_dimensions, data_flows
+from .measures import measure_names, recalibrate, recalibrate_series
 
 # --- version and author
 try:
@@ -43,4 +44,7 @@ __all__ = [
     "fetch_selection",
     "make_wanted",
     "match_item",
+    "measure_names",
+    "recalibrate",
+    "recalibrate_series",
 ]
