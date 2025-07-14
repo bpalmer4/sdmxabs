@@ -88,6 +88,9 @@
                     <a class="variable" href="#__version__">__version__</a>
             </li>
             <li>
+                    <a class="function" href="#code_list_for_dim">code_list_for_dim</a>
+            </li>
+            <li>
                     <a class="function" href="#code_lists">code_lists</a>
             </li>
             <li>
@@ -110,6 +113,12 @@
             </li>
             <li>
                     <a class="function" href="#fetch_selection">fetch_selection</a>
+            </li>
+            <li>
+                    <a class="function" href="#fetch_state_pop">fetch_state_pop</a>
+            </li>
+            <li>
+                    <a class="function" href="#frame">frame</a>
             </li>
             <li>
                     <a class="function" href="#make_wanted">make_wanted</a>
@@ -162,9 +171,9 @@ sdmxabs    </h1>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch_gdp</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_gdp</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch_multi</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_multi</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch_pop</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_pop</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch_pop</span><span class="w"> </span><span class="kn">import</span> <span class="n">fetch_pop</span><span class="p">,</span> <span class="n">fetch_state_pop</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.fetch_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">MatchCriteria</span><span class="p">,</span> <span class="n">MatchItem</span><span class="p">,</span> <span class="n">MatchType</span><span class="p">,</span> <span class="n">fetch_selection</span><span class="p">,</span> <span class="n">make_wanted</span><span class="p">,</span> <span class="n">match_item</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.flow_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">code_lists</span><span class="p">,</span> <span class="n">data_dimensions</span><span class="p">,</span> <span class="n">data_flows</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.flow_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">code_list_for_dim</span><span class="p">,</span> <span class="n">code_lists</span><span class="p">,</span> <span class="n">data_dimensions</span><span class="p">,</span> <span class="n">data_flows</span><span class="p">,</span> <span class="n">frame</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.measures</span><span class="w"> </span><span class="kn">import</span> <span class="n">measure_names</span><span class="p">,</span> <span class="n">recalibrate</span><span class="p">,</span> <span class="n">recalibrate_series</span>
 </span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="c1"># --- version and author</span>
@@ -185,20 +194,23 @@ sdmxabs    </h1>
 </span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="s2">&quot;ModalityType&quot;</span><span class="p">,</span>
 </span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="s2">&quot;__author__&quot;</span><span class="p">,</span>
 </span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="s2">&quot;code_lists&quot;</span><span class="p">,</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="s2">&quot;data_dimensions&quot;</span><span class="p">,</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="s2">&quot;data_flows&quot;</span><span class="p">,</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="s2">&quot;fetch&quot;</span><span class="p">,</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="s2">&quot;fetch_gdp&quot;</span><span class="p">,</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="s2">&quot;fetch_multi&quot;</span><span class="p">,</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="s2">&quot;fetch_pop&quot;</span><span class="p">,</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="s2">&quot;fetch_selection&quot;</span><span class="p">,</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="s2">&quot;make_wanted&quot;</span><span class="p">,</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="s2">&quot;match_item&quot;</span><span class="p">,</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="s2">&quot;measure_names&quot;</span><span class="p">,</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="s2">&quot;recalibrate&quot;</span><span class="p">,</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="s2">&quot;recalibrate_series&quot;</span><span class="p">,</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a><span class="p">]</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="s2">&quot;code_list_for_dim&quot;</span><span class="p">,</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="s2">&quot;code_lists&quot;</span><span class="p">,</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="s2">&quot;data_dimensions&quot;</span><span class="p">,</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="s2">&quot;data_flows&quot;</span><span class="p">,</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="s2">&quot;fetch&quot;</span><span class="p">,</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="s2">&quot;fetch_gdp&quot;</span><span class="p">,</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="s2">&quot;fetch_multi&quot;</span><span class="p">,</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>    <span class="s2">&quot;fetch_pop&quot;</span><span class="p">,</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="s2">&quot;fetch_selection&quot;</span><span class="p">,</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>    <span class="s2">&quot;fetch_state_pop&quot;</span><span class="p">,</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="s2">&quot;frame&quot;</span><span class="p">,</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="s2">&quot;make_wanted&quot;</span><span class="p">,</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="s2">&quot;match_item&quot;</span><span class="p">,</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="s2">&quot;measure_names&quot;</span><span class="p">,</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="s2">&quot;recalibrate&quot;</span><span class="p">,</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="s2">&quot;recalibrate_series&quot;</span><span class="p">,</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="p">]</span>
 </span></pre></div>
 
 
@@ -416,6 +428,62 @@ sdmxabs    </h1>
     <a class="headerlink" href="#__version__"></a>
     
     
+
+                </section>
+                <section id="code_list_for_dim">
+                            <input id="code_list_for_dim-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+                    <div class="decorator decorator-cache">@cache</div>
+
+        <span class="def">def</span>
+        <span class="name">code_list_for_dim</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">dim_name</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n"><a href="#GetFileKwargs">GetFileKwargs</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>:</span></span>
+
+                <label class="view-source-button" for="code_list_for_dim-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#code_list_for_dim"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="code_list_for_dim-155"><a href="#code_list_for_dim-155"><span class="linenos">155</span></a><span class="nd">@cache</span>
+</span><span id="code_list_for_dim-156"><a href="#code_list_for_dim-156"><span class="linenos">156</span></a><span class="k">def</span><span class="w"> </span><span class="nf">code_list_for_dim</span><span class="p">(</span><span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dim_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">FlowMetaDict</span><span class="p">:</span>
+</span><span id="code_list_for_dim-157"><a href="#code_list_for_dim-157"><span class="linenos">157</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the code list for a specific dimension or attribute in a dataflow.</span>
+</span><span id="code_list_for_dim-158"><a href="#code_list_for_dim-158"><span class="linenos">158</span></a>
+</span><span id="code_list_for_dim-159"><a href="#code_list_for_dim-159"><span class="linenos">159</span></a><span class="sd">    Args:</span>
+</span><span id="code_list_for_dim-160"><a href="#code_list_for_dim-160"><span class="linenos">160</span></a><span class="sd">        flow_id (str): The ID of the dataflow.</span>
+</span><span id="code_list_for_dim-161"><a href="#code_list_for_dim-161"><span class="linenos">161</span></a><span class="sd">        dim_name (str): The dimension ID to retrieve the code list for.</span>
+</span><span id="code_list_for_dim-162"><a href="#code_list_for_dim-162"><span class="linenos">162</span></a><span class="sd">        **kwargs: Additional keyword arguments passed to acquire_url().</span>
+</span><span id="code_list_for_dim-163"><a href="#code_list_for_dim-163"><span class="linenos">163</span></a>
+</span><span id="code_list_for_dim-164"><a href="#code_list_for_dim-164"><span class="linenos">164</span></a><span class="sd">    Returns:</span>
+</span><span id="code_list_for_dim-165"><a href="#code_list_for_dim-165"><span class="linenos">165</span></a><span class="sd">        FlowMetaDict: A dictionary containing the codes and their metadata.</span>
+</span><span id="code_list_for_dim-166"><a href="#code_list_for_dim-166"><span class="linenos">166</span></a>
+</span><span id="code_list_for_dim-167"><a href="#code_list_for_dim-167"><span class="linenos">167</span></a><span class="sd">    Raises:</span>
+</span><span id="code_list_for_dim-168"><a href="#code_list_for_dim-168"><span class="linenos">168</span></a><span class="sd">        ValueError: If the dimension/attribute is not found in the dataflow.</span>
+</span><span id="code_list_for_dim-169"><a href="#code_list_for_dim-169"><span class="linenos">169</span></a>
+</span><span id="code_list_for_dim-170"><a href="#code_list_for_dim-170"><span class="linenos">170</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="code_list_for_dim-171"><a href="#code_list_for_dim-171"><span class="linenos">171</span></a>    <span class="n">dimensions</span> <span class="o">=</span> <span class="n">data_dimensions</span><span class="p">(</span><span class="n">flow_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="code_list_for_dim-172"><a href="#code_list_for_dim-172"><span class="linenos">172</span></a>    <span class="k">if</span> <span class="n">dim_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">:</span>
+</span><span id="code_list_for_dim-173"><a href="#code_list_for_dim-173"><span class="linenos">173</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimension &#39;</span><span class="si">{</span><span class="n">dim_name</span><span class="si">}</span><span class="s2">&#39; not found in flow &#39;</span><span class="si">{</span><span class="n">flow_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="code_list_for_dim-174"><a href="#code_list_for_dim-174"><span class="linenos">174</span></a>
+</span><span id="code_list_for_dim-175"><a href="#code_list_for_dim-175"><span class="linenos">175</span></a>    <span class="n">codelist_id</span> <span class="o">=</span> <span class="n">dimensions</span><span class="p">[</span><span class="n">dim_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</span><span id="code_list_for_dim-176"><a href="#code_list_for_dim-176"><span class="linenos">176</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">codelist_id</span><span class="p">:</span>
+</span><span id="code_list_for_dim-177"><a href="#code_list_for_dim-177"><span class="linenos">177</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No codelist found for dimension/attribute &#39;</span><span class="si">{</span><span class="n">dim_name</span><span class="si">}</span><span class="s2">&#39; in flow &#39;</span><span class="si">{</span><span class="n">flow_id</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+</span><span id="code_list_for_dim-178"><a href="#code_list_for_dim-178"><span class="linenos">178</span></a>
+</span><span id="code_list_for_dim-179"><a href="#code_list_for_dim-179"><span class="linenos">179</span></a>    <span class="k">return</span> <span class="n">code_lists</span><span class="p">(</span><span class="n">codelist_id</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Get the code list for a specific dimension or attribute in a dataflow.</p>
+
+<p>Args:
+    flow_id (str): The ID of the dataflow.
+    dim_name (str): The dimension ID to retrieve the code list for.
+    **kwargs: Additional keyword arguments passed to acquire_url().</p>
+
+<p>Returns:
+    FlowMetaDict: A dictionary containing the codes and their metadata.</p>
+
+<p>Raises:
+    ValueError: If the dimension/attribute is not found in the dataflow.</p>
+</div>
+
 
                 </section>
                 <section id="code_lists">
@@ -833,11 +901,11 @@ sdmxabs    </h1>
 </span><span id="fetch_gdp-60"><a href="#fetch_gdp-60"><span class="linenos">60</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
 </span><span id="fetch_gdp-61"><a href="#fetch_gdp-61"><span class="linenos">61</span></a>
 </span><span id="fetch_gdp-62"><a href="#fetch_gdp-62"><span class="linenos">62</span></a>    <span class="c1"># build a selection criteria</span>
-</span><span id="fetch_gdp-63"><a href="#fetch_gdp-63"><span class="linenos">63</span></a>    <span class="n">selection_criteria</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="fetch_gdp-64"><a href="#fetch_gdp-64"><span class="linenos">64</span></a>    <span class="n">selection_criteria</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match_item</span><span class="p">(</span><span class="n">SEAS_MAP</span><span class="p">[</span><span class="n">seasonality</span><span class="p">],</span> <span class="s2">&quot;TSEST&quot;</span><span class="p">,</span> <span class="n">Mt</span><span class="o">.</span><span class="n">EXACT</span><span class="p">))</span>
-</span><span id="fetch_gdp-65"><a href="#fetch_gdp-65"><span class="linenos">65</span></a>    <span class="n">selection_criteria</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match_item</span><span class="p">(</span><span class="n">PRICE_MAP</span><span class="p">[</span><span class="n">price_measure</span><span class="p">],</span> <span class="s2">&quot;MEASURE&quot;</span><span class="p">,</span> <span class="n">Mt</span><span class="o">.</span><span class="n">EXACT</span><span class="p">))</span>
-</span><span id="fetch_gdp-66"><a href="#fetch_gdp-66"><span class="linenos">66</span></a>    <span class="n">selection_criteria</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">match_item</span><span class="p">(</span><span class="s2">&quot;Gross domestic product&quot;</span><span class="p">,</span> <span class="s2">&quot;DATA_ITEM&quot;</span><span class="p">,</span> <span class="n">Mt</span><span class="o">.</span><span class="n">EXACT</span><span class="p">))</span>
-</span><span id="fetch_gdp-67"><a href="#fetch_gdp-67"><span class="linenos">67</span></a>
+</span><span id="fetch_gdp-63"><a href="#fetch_gdp-63"><span class="linenos">63</span></a>    <span class="n">selection_criteria</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="fetch_gdp-64"><a href="#fetch_gdp-64"><span class="linenos">64</span></a>        <span class="p">(</span><span class="n">SEAS_MAP</span><span class="p">[</span><span class="n">seasonality</span><span class="p">],</span> <span class="s2">&quot;TSEST&quot;</span><span class="p">,</span> <span class="n">Mt</span><span class="o">.</span><span class="n">EXACT</span><span class="p">),</span>
+</span><span id="fetch_gdp-65"><a href="#fetch_gdp-65"><span class="linenos">65</span></a>        <span class="p">(</span><span class="n">PRICE_MAP</span><span class="p">[</span><span class="n">price_measure</span><span class="p">],</span> <span class="s2">&quot;MEASURE&quot;</span><span class="p">,</span> <span class="n">Mt</span><span class="o">.</span><span class="n">EXACT</span><span class="p">),</span>
+</span><span id="fetch_gdp-66"><a href="#fetch_gdp-66"><span class="linenos">66</span></a>        <span class="p">(</span><span class="s2">&quot;Gross domestic product&quot;</span><span class="p">,</span> <span class="s2">&quot;DATA_ITEM&quot;</span><span class="p">,</span> <span class="n">Mt</span><span class="o">.</span><span class="n">EXACT</span><span class="p">),</span>
+</span><span id="fetch_gdp-67"><a href="#fetch_gdp-67"><span class="linenos">67</span></a>    <span class="p">]</span>
 </span><span id="fetch_gdp-68"><a href="#fetch_gdp-68"><span class="linenos">68</span></a>    <span class="c1"># return the data</span>
 </span><span id="fetch_gdp-69"><a href="#fetch_gdp-69"><span class="linenos">69</span></a>    <span class="n">flow_id</span> <span class="o">=</span> <span class="s2">&quot;ANA_AGG&quot;</span>
 </span><span id="fetch_gdp-70"><a href="#fetch_gdp-70"><span class="linenos">70</span></a>    <span class="k">return</span> <span class="n">fetch_selection</span><span class="p">(</span><span class="n">flow_id</span><span class="p">,</span> <span class="n">selection_criteria</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
@@ -979,51 +1047,51 @@ sdmxabs    </h1>
 
     </div>
     <a class="headerlink" href="#fetch_pop"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_pop-107"><a href="#fetch_pop-107"><span class="linenos">107</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_pop</span><span class="p">(</span>
-</span><span id="fetch_pop-108"><a href="#fetch_pop-108"><span class="linenos">108</span></a>    <span class="n">source</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;erp&quot;</span><span class="p">,</span> <span class="s2">&quot;na&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;erp&quot;</span><span class="p">,</span>
-</span><span id="fetch_pop-109"><a href="#fetch_pop-109"><span class="linenos">109</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="fetch_pop-110"><a href="#fetch_pop-110"><span class="linenos">110</span></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="fetch_pop-111"><a href="#fetch_pop-111"><span class="linenos">111</span></a>    <span class="n">projection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="fetch_pop-112"><a href="#fetch_pop-112"><span class="linenos">112</span></a>    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="fetch_pop-113"><a href="#fetch_pop-113"><span class="linenos">113</span></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">],</span>
-</span><span id="fetch_pop-114"><a href="#fetch_pop-114"><span class="linenos">114</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-</span><span id="fetch_pop-115"><a href="#fetch_pop-115"><span class="linenos">115</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch Estimated Resident Population (ERP) data from the ABS SDMX API.</span>
-</span><span id="fetch_pop-116"><a href="#fetch_pop-116"><span class="linenos">116</span></a>
-</span><span id="fetch_pop-117"><a href="#fetch_pop-117"><span class="linenos">117</span></a><span class="sd">    Args:</span>
-</span><span id="fetch_pop-118"><a href="#fetch_pop-118"><span class="linenos">118</span></a><span class="sd">        source (str): Source of the population data:</span>
-</span><span id="fetch_pop-119"><a href="#fetch_pop-119"><span class="linenos">119</span></a><span class="sd">            - &quot;erp&quot;: ABS published Estimated Resident Population (default)</span>
-</span><span id="fetch_pop-120"><a href="#fetch_pop-120"><span class="linenos">120</span></a><span class="sd">            - &quot;na&quot;: Implied population from the ABS National Accounts</span>
-</span><span id="fetch_pop-121"><a href="#fetch_pop-121"><span class="linenos">121</span></a><span class="sd">        parameters (dict[str, str] | None): Additional parameters for the API request,</span>
-</span><span id="fetch_pop-122"><a href="#fetch_pop-122"><span class="linenos">122</span></a><span class="sd">            such as &#39;startPeriod&#39;.</span>
-</span><span id="fetch_pop-123"><a href="#fetch_pop-123"><span class="linenos">123</span></a><span class="sd">        projection (bool, optional): If True, and data is available for the most recent year,</span>
-</span><span id="fetch_pop-124"><a href="#fetch_pop-124"><span class="linenos">124</span></a><span class="sd">            make a projection forward to the current quarter, based on growth over the last 4 quarters.</span>
-</span><span id="fetch_pop-125"><a href="#fetch_pop-125"><span class="linenos">125</span></a><span class="sd">        validate (bool, optional): If True, validate the selection against the flow&#39;s</span>
-</span><span id="fetch_pop-126"><a href="#fetch_pop-126"><span class="linenos">126</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
-</span><span id="fetch_pop-127"><a href="#fetch_pop-127"><span class="linenos">127</span></a><span class="sd">        **kwargs: Additional arguments passed to the fetch_selection() function</span>
-</span><span id="fetch_pop-128"><a href="#fetch_pop-128"><span class="linenos">128</span></a>
-</span><span id="fetch_pop-129"><a href="#fetch_pop-129"><span class="linenos">129</span></a><span class="sd">    Returns:</span>
-</span><span id="fetch_pop-130"><a href="#fetch_pop-130"><span class="linenos">130</span></a><span class="sd">        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the population data and metadata</span>
-</span><span id="fetch_pop-131"><a href="#fetch_pop-131"><span class="linenos">131</span></a>
-</span><span id="fetch_pop-132"><a href="#fetch_pop-132"><span class="linenos">132</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="fetch_pop-133"><a href="#fetch_pop-133"><span class="linenos">133</span></a>    <span class="c1"># report the parameters used if requested</span>
-</span><span id="fetch_pop-134"><a href="#fetch_pop-134"><span class="linenos">134</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-</span><span id="fetch_pop-135"><a href="#fetch_pop-135"><span class="linenos">135</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-</span><span id="fetch_pop-136"><a href="#fetch_pop-136"><span class="linenos">136</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch_pop(): </span><span class="si">{</span><span class="n">source</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="fetch_pop-137"><a href="#fetch_pop-137"><span class="linenos">137</span></a>
-</span><span id="fetch_pop-138"><a href="#fetch_pop-138"><span class="linenos">138</span></a>    <span class="c1"># build a selection criteria and fetch the relevant data</span>
-</span><span id="fetch_pop-139"><a href="#fetch_pop-139"><span class="linenos">139</span></a>    <span class="k">match</span> <span class="n">source</span><span class="p">:</span>
-</span><span id="fetch_pop-140"><a href="#fetch_pop-140"><span class="linenos">140</span></a>        <span class="k">case</span> <span class="s2">&quot;erp&quot;</span><span class="p">:</span>
-</span><span id="fetch_pop-141"><a href="#fetch_pop-141"><span class="linenos">141</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">_erp_population</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="fetch_pop-142"><a href="#fetch_pop-142"><span class="linenos">142</span></a>        <span class="k">case</span> <span class="s2">&quot;na&quot;</span><span class="p">:</span>
-</span><span id="fetch_pop-143"><a href="#fetch_pop-143"><span class="linenos">143</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">_na_population</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="fetch_pop-144"><a href="#fetch_pop-144"><span class="linenos">144</span></a>        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
-</span><span id="fetch_pop-145"><a href="#fetch_pop-145"><span class="linenos">145</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&#39;. Must be one of: [&#39;erp&#39;, &#39;na&#39;]&quot;</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_pop-137"><a href="#fetch_pop-137"><span class="linenos">137</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_pop</span><span class="p">(</span>
+</span><span id="fetch_pop-138"><a href="#fetch_pop-138"><span class="linenos">138</span></a>    <span class="n">source</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;erp&quot;</span><span class="p">,</span> <span class="s2">&quot;na&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;erp&quot;</span><span class="p">,</span>
+</span><span id="fetch_pop-139"><a href="#fetch_pop-139"><span class="linenos">139</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="fetch_pop-140"><a href="#fetch_pop-140"><span class="linenos">140</span></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="fetch_pop-141"><a href="#fetch_pop-141"><span class="linenos">141</span></a>    <span class="n">projection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="fetch_pop-142"><a href="#fetch_pop-142"><span class="linenos">142</span></a>    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="fetch_pop-143"><a href="#fetch_pop-143"><span class="linenos">143</span></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">],</span>
+</span><span id="fetch_pop-144"><a href="#fetch_pop-144"><span class="linenos">144</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+</span><span id="fetch_pop-145"><a href="#fetch_pop-145"><span class="linenos">145</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch Estimated Resident Population (ERP) data from the ABS SDMX API.</span>
 </span><span id="fetch_pop-146"><a href="#fetch_pop-146"><span class="linenos">146</span></a>
-</span><span id="fetch_pop-147"><a href="#fetch_pop-147"><span class="linenos">147</span></a>    <span class="c1"># if requested, make a projection of the data</span>
-</span><span id="fetch_pop-148"><a href="#fetch_pop-148"><span class="linenos">148</span></a>    <span class="k">if</span> <span class="n">projection</span><span class="p">:</span>
-</span><span id="fetch_pop-149"><a href="#fetch_pop-149"><span class="linenos">149</span></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">_make_projection</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-</span><span id="fetch_pop-150"><a href="#fetch_pop-150"><span class="linenos">150</span></a>
-</span><span id="fetch_pop-151"><a href="#fetch_pop-151"><span class="linenos">151</span></a>    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">meta</span>
+</span><span id="fetch_pop-147"><a href="#fetch_pop-147"><span class="linenos">147</span></a><span class="sd">    Args:</span>
+</span><span id="fetch_pop-148"><a href="#fetch_pop-148"><span class="linenos">148</span></a><span class="sd">        source (str): Source of the population data:</span>
+</span><span id="fetch_pop-149"><a href="#fetch_pop-149"><span class="linenos">149</span></a><span class="sd">            - &quot;erp&quot;: ABS published Estimated Resident Population (default)</span>
+</span><span id="fetch_pop-150"><a href="#fetch_pop-150"><span class="linenos">150</span></a><span class="sd">            - &quot;na&quot;: Implied population from the ABS National Accounts</span>
+</span><span id="fetch_pop-151"><a href="#fetch_pop-151"><span class="linenos">151</span></a><span class="sd">        parameters (dict[str, str] | None): Additional parameters for the API request,</span>
+</span><span id="fetch_pop-152"><a href="#fetch_pop-152"><span class="linenos">152</span></a><span class="sd">            such as &#39;startPeriod&#39;.</span>
+</span><span id="fetch_pop-153"><a href="#fetch_pop-153"><span class="linenos">153</span></a><span class="sd">        projection (bool, optional): If True, and data is available for the most recent year,</span>
+</span><span id="fetch_pop-154"><a href="#fetch_pop-154"><span class="linenos">154</span></a><span class="sd">            make a projection forward to the current quarter, based on growth over the last 4 quarters.</span>
+</span><span id="fetch_pop-155"><a href="#fetch_pop-155"><span class="linenos">155</span></a><span class="sd">        validate (bool, optional): If True, validate the selection against the flow&#39;s</span>
+</span><span id="fetch_pop-156"><a href="#fetch_pop-156"><span class="linenos">156</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
+</span><span id="fetch_pop-157"><a href="#fetch_pop-157"><span class="linenos">157</span></a><span class="sd">        **kwargs: Additional arguments passed to the fetch_selection() function</span>
+</span><span id="fetch_pop-158"><a href="#fetch_pop-158"><span class="linenos">158</span></a>
+</span><span id="fetch_pop-159"><a href="#fetch_pop-159"><span class="linenos">159</span></a><span class="sd">    Returns:</span>
+</span><span id="fetch_pop-160"><a href="#fetch_pop-160"><span class="linenos">160</span></a><span class="sd">        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the population data and metadata</span>
+</span><span id="fetch_pop-161"><a href="#fetch_pop-161"><span class="linenos">161</span></a>
+</span><span id="fetch_pop-162"><a href="#fetch_pop-162"><span class="linenos">162</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="fetch_pop-163"><a href="#fetch_pop-163"><span class="linenos">163</span></a>    <span class="c1"># report the parameters used if requested</span>
+</span><span id="fetch_pop-164"><a href="#fetch_pop-164"><span class="linenos">164</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</span><span id="fetch_pop-165"><a href="#fetch_pop-165"><span class="linenos">165</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+</span><span id="fetch_pop-166"><a href="#fetch_pop-166"><span class="linenos">166</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch_pop(): </span><span class="si">{</span><span class="n">source</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="fetch_pop-167"><a href="#fetch_pop-167"><span class="linenos">167</span></a>
+</span><span id="fetch_pop-168"><a href="#fetch_pop-168"><span class="linenos">168</span></a>    <span class="c1"># build a selection criteria and fetch the relevant data</span>
+</span><span id="fetch_pop-169"><a href="#fetch_pop-169"><span class="linenos">169</span></a>    <span class="k">match</span> <span class="n">source</span><span class="p">:</span>
+</span><span id="fetch_pop-170"><a href="#fetch_pop-170"><span class="linenos">170</span></a>        <span class="k">case</span> <span class="s2">&quot;erp&quot;</span><span class="p">:</span>
+</span><span id="fetch_pop-171"><a href="#fetch_pop-171"><span class="linenos">171</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">_erp_population</span><span class="p">(</span><span class="s2">&quot;Australia&quot;</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="fetch_pop-172"><a href="#fetch_pop-172"><span class="linenos">172</span></a>        <span class="k">case</span> <span class="s2">&quot;na&quot;</span><span class="p">:</span>
+</span><span id="fetch_pop-173"><a href="#fetch_pop-173"><span class="linenos">173</span></a>            <span class="n">data</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">_na_population</span><span class="p">(</span><span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="fetch_pop-174"><a href="#fetch_pop-174"><span class="linenos">174</span></a>        <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
+</span><span id="fetch_pop-175"><a href="#fetch_pop-175"><span class="linenos">175</span></a>            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid source &#39;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&#39;. Must be one of: [&#39;erp&#39;, &#39;na&#39;]&quot;</span><span class="p">)</span>
+</span><span id="fetch_pop-176"><a href="#fetch_pop-176"><span class="linenos">176</span></a>
+</span><span id="fetch_pop-177"><a href="#fetch_pop-177"><span class="linenos">177</span></a>    <span class="c1"># if requested, make a projection of the data</span>
+</span><span id="fetch_pop-178"><a href="#fetch_pop-178"><span class="linenos">178</span></a>    <span class="k">if</span> <span class="n">projection</span><span class="p">:</span>
+</span><span id="fetch_pop-179"><a href="#fetch_pop-179"><span class="linenos">179</span></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">_make_projection</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="fetch_pop-180"><a href="#fetch_pop-180"><span class="linenos">180</span></a>
+</span><span id="fetch_pop-181"><a href="#fetch_pop-181"><span class="linenos">181</span></a>    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">meta</span>
 </span></pre></div>
 
 
@@ -1058,34 +1126,34 @@ sdmxabs    </h1>
 
     </div>
     <a class="headerlink" href="#fetch_selection"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_selection-203"><a href="#fetch_selection-203"><span class="linenos">203</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_selection</span><span class="p">(</span>
-</span><span id="fetch_selection-204"><a href="#fetch_selection-204"><span class="linenos">204</span></a>    <span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="fetch_selection-205"><a href="#fetch_selection-205"><span class="linenos">205</span></a>    <span class="n">criteria</span><span class="p">:</span> <span class="n">MatchCriteria</span><span class="p">,</span>
-</span><span id="fetch_selection-206"><a href="#fetch_selection-206"><span class="linenos">206</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="fetch_selection-207"><a href="#fetch_selection-207"><span class="linenos">207</span></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="fetch_selection-208"><a href="#fetch_selection-208"><span class="linenos">208</span></a>    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="fetch_selection-209"><a href="#fetch_selection-209"><span class="linenos">209</span></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">],</span>
-</span><span id="fetch_selection-210"><a href="#fetch_selection-210"><span class="linenos">210</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-</span><span id="fetch_selection-211"><a href="#fetch_selection-211"><span class="linenos">211</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch data based on a selection criteria for items.</span>
-</span><span id="fetch_selection-212"><a href="#fetch_selection-212"><span class="linenos">212</span></a>
-</span><span id="fetch_selection-213"><a href="#fetch_selection-213"><span class="linenos">213</span></a><span class="sd">    Args:</span>
-</span><span id="fetch_selection-214"><a href="#fetch_selection-214"><span class="linenos">214</span></a><span class="sd">        flow_id (str): The ID of the data flow to fetch.</span>
-</span><span id="fetch_selection-215"><a href="#fetch_selection-215"><span class="linenos">215</span></a><span class="sd">        criteria (MatchCriteria): A sequence of match criteria to filter the data.</span>
-</span><span id="fetch_selection-216"><a href="#fetch_selection-216"><span class="linenos">216</span></a><span class="sd">        parameters (dict[str, str] | None, optional): Additional parameters for the fetch.</span>
-</span><span id="fetch_selection-217"><a href="#fetch_selection-217"><span class="linenos">217</span></a><span class="sd">        validate (bool, optional): If True, validate the selection against the flow&#39;s</span>
-</span><span id="fetch_selection-218"><a href="#fetch_selection-218"><span class="linenos">218</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
-</span><span id="fetch_selection-219"><a href="#fetch_selection-219"><span class="linenos">219</span></a><span class="sd">        **kwargs: Additional keyword arguments for the fetch_multi function.</span>
-</span><span id="fetch_selection-220"><a href="#fetch_selection-220"><span class="linenos">220</span></a>
-</span><span id="fetch_selection-221"><a href="#fetch_selection-221"><span class="linenos">221</span></a><span class="sd">    Returns:</span>
-</span><span id="fetch_selection-222"><a href="#fetch_selection-222"><span class="linenos">222</span></a><span class="sd">        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the fetched data and metadata.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_selection-206"><a href="#fetch_selection-206"><span class="linenos">206</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_selection</span><span class="p">(</span>
+</span><span id="fetch_selection-207"><a href="#fetch_selection-207"><span class="linenos">207</span></a>    <span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="fetch_selection-208"><a href="#fetch_selection-208"><span class="linenos">208</span></a>    <span class="n">criteria</span><span class="p">:</span> <span class="n">MatchCriteria</span><span class="p">,</span>
+</span><span id="fetch_selection-209"><a href="#fetch_selection-209"><span class="linenos">209</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="fetch_selection-210"><a href="#fetch_selection-210"><span class="linenos">210</span></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="fetch_selection-211"><a href="#fetch_selection-211"><span class="linenos">211</span></a>    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="fetch_selection-212"><a href="#fetch_selection-212"><span class="linenos">212</span></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">],</span>
+</span><span id="fetch_selection-213"><a href="#fetch_selection-213"><span class="linenos">213</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+</span><span id="fetch_selection-214"><a href="#fetch_selection-214"><span class="linenos">214</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch data based on a selection criteria for items.</span>
+</span><span id="fetch_selection-215"><a href="#fetch_selection-215"><span class="linenos">215</span></a>
+</span><span id="fetch_selection-216"><a href="#fetch_selection-216"><span class="linenos">216</span></a><span class="sd">    Args:</span>
+</span><span id="fetch_selection-217"><a href="#fetch_selection-217"><span class="linenos">217</span></a><span class="sd">        flow_id (str): The ID of the data flow to fetch.</span>
+</span><span id="fetch_selection-218"><a href="#fetch_selection-218"><span class="linenos">218</span></a><span class="sd">        criteria (MatchCriteria): A sequence of match criteria to filter the data.</span>
+</span><span id="fetch_selection-219"><a href="#fetch_selection-219"><span class="linenos">219</span></a><span class="sd">        parameters (dict[str, str] | None, optional): Additional parameters for the fetch.</span>
+</span><span id="fetch_selection-220"><a href="#fetch_selection-220"><span class="linenos">220</span></a><span class="sd">        validate (bool, optional): If True, validate the selection against the flow&#39;s</span>
+</span><span id="fetch_selection-221"><a href="#fetch_selection-221"><span class="linenos">221</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
+</span><span id="fetch_selection-222"><a href="#fetch_selection-222"><span class="linenos">222</span></a><span class="sd">        **kwargs: Additional keyword arguments for the fetch_multi function.</span>
 </span><span id="fetch_selection-223"><a href="#fetch_selection-223"><span class="linenos">223</span></a>
-</span><span id="fetch_selection-224"><a href="#fetch_selection-224"><span class="linenos">224</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="fetch_selection-225"><a href="#fetch_selection-225"><span class="linenos">225</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-</span><span id="fetch_selection-226"><a href="#fetch_selection-226"><span class="linenos">226</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
-</span><span id="fetch_selection-227"><a href="#fetch_selection-227"><span class="linenos">227</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch_selection(): </span><span class="si">{</span><span class="n">flow_id</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">criteria</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">parameters</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="fetch_selection-228"><a href="#fetch_selection-228"><span class="linenos">228</span></a>
-</span><span id="fetch_selection-229"><a href="#fetch_selection-229"><span class="linenos">229</span></a>    <span class="n">selection</span> <span class="o">=</span> <span class="n">make_wanted</span><span class="p">(</span><span class="n">flow_id</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
-</span><span id="fetch_selection-230"><a href="#fetch_selection-230"><span class="linenos">230</span></a>    <span class="k">return</span> <span class="n">fetch_multi</span><span class="p">(</span><span class="n">selection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="fetch_selection-224"><a href="#fetch_selection-224"><span class="linenos">224</span></a><span class="sd">    Returns:</span>
+</span><span id="fetch_selection-225"><a href="#fetch_selection-225"><span class="linenos">225</span></a><span class="sd">        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the fetched data and metadata.</span>
+</span><span id="fetch_selection-226"><a href="#fetch_selection-226"><span class="linenos">226</span></a>
+</span><span id="fetch_selection-227"><a href="#fetch_selection-227"><span class="linenos">227</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="fetch_selection-228"><a href="#fetch_selection-228"><span class="linenos">228</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</span><span id="fetch_selection-229"><a href="#fetch_selection-229"><span class="linenos">229</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+</span><span id="fetch_selection-230"><a href="#fetch_selection-230"><span class="linenos">230</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch_selection(): </span><span class="si">{</span><span class="n">flow_id</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">criteria</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">parameters</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="fetch_selection-231"><a href="#fetch_selection-231"><span class="linenos">231</span></a>
+</span><span id="fetch_selection-232"><a href="#fetch_selection-232"><span class="linenos">232</span></a>    <span class="n">selection</span> <span class="o">=</span> <span class="n">make_wanted</span><span class="p">(</span><span class="n">flow_id</span><span class="p">,</span> <span class="n">criteria</span><span class="p">)</span>
+</span><span id="fetch_selection-233"><a href="#fetch_selection-233"><span class="linenos">233</span></a>    <span class="k">return</span> <span class="n">fetch_multi</span><span class="p">(</span><span class="n">selection</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1105,6 +1173,115 @@ sdmxabs    </h1>
 
 
                 </section>
+                <section id="fetch_state_pop">
+                            <input id="fetch_state_pop-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">fetch_state_pop</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">state</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">projection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>,</span><span class="param">	<span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n"><a href="#GetFileKwargs">GetFileKwargs</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="nb">tuple</span><span class="p">[</span><span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>:</span></span>
+
+                <label class="view-source-button" for="fetch_state_pop-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#fetch_state_pop"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="fetch_state_pop-184"><a href="#fetch_state_pop-184"><span class="linenos">184</span></a><span class="k">def</span><span class="w"> </span><span class="nf">fetch_state_pop</span><span class="p">(</span>
+</span><span id="fetch_state_pop-185"><a href="#fetch_state_pop-185"><span class="linenos">185</span></a>    <span class="n">state</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="fetch_state_pop-186"><a href="#fetch_state_pop-186"><span class="linenos">186</span></a>    <span class="n">parameters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="fetch_state_pop-187"><a href="#fetch_state_pop-187"><span class="linenos">187</span></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="fetch_state_pop-188"><a href="#fetch_state_pop-188"><span class="linenos">188</span></a>    <span class="n">projection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="fetch_state_pop-189"><a href="#fetch_state_pop-189"><span class="linenos">189</span></a>    <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="fetch_state_pop-190"><a href="#fetch_state_pop-190"><span class="linenos">190</span></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">GetFileKwargs</span><span class="p">],</span>
+</span><span id="fetch_state_pop-191"><a href="#fetch_state_pop-191"><span class="linenos">191</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+</span><span id="fetch_state_pop-192"><a href="#fetch_state_pop-192"><span class="linenos">192</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch state-level ERP population data from the ABS SDMX API.</span>
+</span><span id="fetch_state_pop-193"><a href="#fetch_state_pop-193"><span class="linenos">193</span></a>
+</span><span id="fetch_state_pop-194"><a href="#fetch_state_pop-194"><span class="linenos">194</span></a><span class="sd">    Args:</span>
+</span><span id="fetch_state_pop-195"><a href="#fetch_state_pop-195"><span class="linenos">195</span></a><span class="sd">        state (str): State/territory name or case-insensitive abbreviation (e.g., &quot;NSW&quot;, &quot;Vic&quot;, &quot;qld&quot;, etc.).</span>
+</span><span id="fetch_state_pop-196"><a href="#fetch_state_pop-196"><span class="linenos">196</span></a><span class="sd">        parameters (dict[str, str] | None): Additional parameters for the API request,</span>
+</span><span id="fetch_state_pop-197"><a href="#fetch_state_pop-197"><span class="linenos">197</span></a><span class="sd">            such as &#39;startPeriod&#39;.</span>
+</span><span id="fetch_state_pop-198"><a href="#fetch_state_pop-198"><span class="linenos">198</span></a><span class="sd">        projection (bool, optional): If True, make a projection forward to the current quarter</span>
+</span><span id="fetch_state_pop-199"><a href="#fetch_state_pop-199"><span class="linenos">199</span></a><span class="sd">            based on growth over the last 4 quarters.</span>
+</span><span id="fetch_state_pop-200"><a href="#fetch_state_pop-200"><span class="linenos">200</span></a><span class="sd">        validate (bool, optional): If True, validate the selection against the flow&#39;s</span>
+</span><span id="fetch_state_pop-201"><a href="#fetch_state_pop-201"><span class="linenos">201</span></a><span class="sd">            required dimensions when generating the URL key. Defaults to False.</span>
+</span><span id="fetch_state_pop-202"><a href="#fetch_state_pop-202"><span class="linenos">202</span></a><span class="sd">        **kwargs: Additional arguments passed to the fetch_selection() function</span>
+</span><span id="fetch_state_pop-203"><a href="#fetch_state_pop-203"><span class="linenos">203</span></a>
+</span><span id="fetch_state_pop-204"><a href="#fetch_state_pop-204"><span class="linenos">204</span></a><span class="sd">    Returns:</span>
+</span><span id="fetch_state_pop-205"><a href="#fetch_state_pop-205"><span class="linenos">205</span></a><span class="sd">        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the population data and metadata</span>
+</span><span id="fetch_state_pop-206"><a href="#fetch_state_pop-206"><span class="linenos">206</span></a>
+</span><span id="fetch_state_pop-207"><a href="#fetch_state_pop-207"><span class="linenos">207</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="fetch_state_pop-208"><a href="#fetch_state_pop-208"><span class="linenos">208</span></a>    <span class="c1"># report the parameters used if requested</span>
+</span><span id="fetch_state_pop-209"><a href="#fetch_state_pop-209"><span class="linenos">209</span></a>    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</span><span id="fetch_state_pop-210"><a href="#fetch_state_pop-210"><span class="linenos">210</span></a>    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+</span><span id="fetch_state_pop-211"><a href="#fetch_state_pop-211"><span class="linenos">211</span></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fetch_state_pop(): </span><span class="si">{</span><span class="n">state</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">validate</span><span class="si">=}</span><span class="s2"> </span><span class="si">{</span><span class="n">kwargs</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="fetch_state_pop-212"><a href="#fetch_state_pop-212"><span class="linenos">212</span></a>
+</span><span id="fetch_state_pop-213"><a href="#fetch_state_pop-213"><span class="linenos">213</span></a>    <span class="n">full_state_name</span> <span class="o">=</span> <span class="n">_state_name_from_abbrev</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+</span><span id="fetch_state_pop-214"><a href="#fetch_state_pop-214"><span class="linenos">214</span></a>
+</span><span id="fetch_state_pop-215"><a href="#fetch_state_pop-215"><span class="linenos">215</span></a>    <span class="n">data</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">_erp_population</span><span class="p">(</span><span class="n">full_state_name</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="fetch_state_pop-216"><a href="#fetch_state_pop-216"><span class="linenos">216</span></a>
+</span><span id="fetch_state_pop-217"><a href="#fetch_state_pop-217"><span class="linenos">217</span></a>    <span class="k">if</span> <span class="n">projection</span><span class="p">:</span>
+</span><span id="fetch_state_pop-218"><a href="#fetch_state_pop-218"><span class="linenos">218</span></a>        <span class="n">data</span> <span class="o">=</span> <span class="n">_make_projection</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="fetch_state_pop-219"><a href="#fetch_state_pop-219"><span class="linenos">219</span></a>
+</span><span id="fetch_state_pop-220"><a href="#fetch_state_pop-220"><span class="linenos">220</span></a>    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">meta</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Fetch state-level ERP population data from the ABS SDMX API.</p>
+
+<p>Args:
+    state (str): State/territory name or case-insensitive abbreviation (e.g., "NSW", "Vic", "qld", etc.).
+    parameters (dict[str, str] | None): Additional parameters for the API request,
+        such as 'startPeriod'.
+    projection (bool, optional): If True, make a projection forward to the current quarter
+        based on growth over the last 4 quarters.
+    validate (bool, optional): If True, validate the selection against the flow's
+        required dimensions when generating the URL key. Defaults to False.
+    **kwargs: Additional arguments passed to the fetch_selection() function</p>
+
+<p>Returns:
+    tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the population data and metadata</p>
+</div>
+
+
+                </section>
+                <section id="frame">
+                            <input id="frame-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">frame</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">f</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span></span><span class="return-annotation">) -> <span class="n">pandas</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">DataFrame</span>:</span></span>
+
+                <label class="view-source-button" for="frame-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#frame"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="frame-206"><a href="#frame-206"><span class="linenos">206</span></a><span class="k">def</span><span class="w"> </span><span class="nf">frame</span><span class="p">(</span><span class="n">f</span><span class="p">:</span> <span class="n">FlowMetaDict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+</span><span id="frame-207"><a href="#frame-207"><span class="linenos">207</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a FlowMetaDict to a pandas DataFrame.</span>
+</span><span id="frame-208"><a href="#frame-208"><span class="linenos">208</span></a>
+</span><span id="frame-209"><a href="#frame-209"><span class="linenos">209</span></a><span class="sd">    Args:</span>
+</span><span id="frame-210"><a href="#frame-210"><span class="linenos">210</span></a><span class="sd">        f (FlowMetaDict): The flow metadata dictionary to convert.</span>
+</span><span id="frame-211"><a href="#frame-211"><span class="linenos">211</span></a>
+</span><span id="frame-212"><a href="#frame-212"><span class="linenos">212</span></a><span class="sd">    Returns:</span>
+</span><span id="frame-213"><a href="#frame-213"><span class="linenos">213</span></a><span class="sd">        pd.DataFrame: A DataFrame representation of the flow metadata.</span>
+</span><span id="frame-214"><a href="#frame-214"><span class="linenos">214</span></a>
+</span><span id="frame-215"><a href="#frame-215"><span class="linenos">215</span></a><span class="sd">    Note: This is a utility function to help visualize the flow metadata.</span>
+</span><span id="frame-216"><a href="#frame-216"><span class="linenos">216</span></a>
+</span><span id="frame-217"><a href="#frame-217"><span class="linenos">217</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="frame-218"><a href="#frame-218"><span class="linenos">218</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Convert a FlowMetaDict to a pandas DataFrame.</p>
+
+<p>Args:
+    f (FlowMetaDict): The flow metadata dictionary to convert.</p>
+
+<p>Returns:
+    pd.DataFrame: A DataFrame representation of the flow metadata.</p>
+
+<p>Note: This is a utility function to help visualize the flow metadata.</p>
+</div>
+
+
+                </section>
                 <section id="make_wanted">
                             <input id="make_wanted-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
@@ -1116,38 +1293,38 @@ sdmxabs    </h1>
 
     </div>
     <a class="headerlink" href="#make_wanted"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="make_wanted-169"><a href="#make_wanted-169"><span class="linenos">169</span></a><span class="k">def</span><span class="w"> </span><span class="nf">make_wanted</span><span class="p">(</span>
-</span><span id="make_wanted-170"><a href="#make_wanted-170"><span class="linenos">170</span></a>    <span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="make_wanted-171"><a href="#make_wanted-171"><span class="linenos">171</span></a>    <span class="n">criteria</span><span class="p">:</span> <span class="n">MatchCriteria</span><span class="p">,</span>
-</span><span id="make_wanted-172"><a href="#make_wanted-172"><span class="linenos">172</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-</span><span id="make_wanted-173"><a href="#make_wanted-173"><span class="linenos">173</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a `wanted` Dataframe for use by fetch_multi() by matching flow metadata.</span>
-</span><span id="make_wanted-174"><a href="#make_wanted-174"><span class="linenos">174</span></a>
-</span><span id="make_wanted-175"><a href="#make_wanted-175"><span class="linenos">175</span></a><span class="sd">    Args:</span>
-</span><span id="make_wanted-176"><a href="#make_wanted-176"><span class="linenos">176</span></a><span class="sd">        flow_id (str): The ID of the data flow to select items from.</span>
-</span><span id="make_wanted-177"><a href="#make_wanted-177"><span class="linenos">177</span></a><span class="sd">        criteria (MatchCriteria): A sequence of tuples containing the pattern,</span>
-</span><span id="make_wanted-178"><a href="#make_wanted-178"><span class="linenos">178</span></a><span class="sd">            dimension name, and match-type (exact, partial, or regex).</span>
-</span><span id="make_wanted-179"><a href="#make_wanted-179"><span class="linenos">179</span></a>
-</span><span id="make_wanted-180"><a href="#make_wanted-180"><span class="linenos">180</span></a><span class="sd">    Returns:</span>
-</span><span id="make_wanted-181"><a href="#make_wanted-181"><span class="linenos">181</span></a><span class="sd">        pd.DataFrame: A DataFrame containing the selected items, which can be dropped</span>
-</span><span id="make_wanted-182"><a href="#make_wanted-182"><span class="linenos">182</span></a><span class="sd">            into the call of the function fetch_multi().</span>
-</span><span id="make_wanted-183"><a href="#make_wanted-183"><span class="linenos">183</span></a>
-</span><span id="make_wanted-184"><a href="#make_wanted-184"><span class="linenos">184</span></a><span class="sd">    Raises:</span>
-</span><span id="make_wanted-185"><a href="#make_wanted-185"><span class="linenos">185</span></a><span class="sd">        ValueError: If the flow_id is not valid or if no items match the criteria.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="make_wanted-172"><a href="#make_wanted-172"><span class="linenos">172</span></a><span class="k">def</span><span class="w"> </span><span class="nf">make_wanted</span><span class="p">(</span>
+</span><span id="make_wanted-173"><a href="#make_wanted-173"><span class="linenos">173</span></a>    <span class="n">flow_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="make_wanted-174"><a href="#make_wanted-174"><span class="linenos">174</span></a>    <span class="n">criteria</span><span class="p">:</span> <span class="n">MatchCriteria</span><span class="p">,</span>
+</span><span id="make_wanted-175"><a href="#make_wanted-175"><span class="linenos">175</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+</span><span id="make_wanted-176"><a href="#make_wanted-176"><span class="linenos">176</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a `wanted` Dataframe for use by fetch_multi() by matching flow metadata.</span>
+</span><span id="make_wanted-177"><a href="#make_wanted-177"><span class="linenos">177</span></a>
+</span><span id="make_wanted-178"><a href="#make_wanted-178"><span class="linenos">178</span></a><span class="sd">    Args:</span>
+</span><span id="make_wanted-179"><a href="#make_wanted-179"><span class="linenos">179</span></a><span class="sd">        flow_id (str): The ID of the data flow to select items from.</span>
+</span><span id="make_wanted-180"><a href="#make_wanted-180"><span class="linenos">180</span></a><span class="sd">        criteria (MatchCriteria): A sequence of tuples containing the pattern,</span>
+</span><span id="make_wanted-181"><a href="#make_wanted-181"><span class="linenos">181</span></a><span class="sd">            dimension name, and match-type (exact, partial, or regex).</span>
+</span><span id="make_wanted-182"><a href="#make_wanted-182"><span class="linenos">182</span></a>
+</span><span id="make_wanted-183"><a href="#make_wanted-183"><span class="linenos">183</span></a><span class="sd">    Returns:</span>
+</span><span id="make_wanted-184"><a href="#make_wanted-184"><span class="linenos">184</span></a><span class="sd">        pd.DataFrame: A DataFrame containing the selected items, which can be dropped</span>
+</span><span id="make_wanted-185"><a href="#make_wanted-185"><span class="linenos">185</span></a><span class="sd">            into the call of the function fetch_multi().</span>
 </span><span id="make_wanted-186"><a href="#make_wanted-186"><span class="linenos">186</span></a>
-</span><span id="make_wanted-187"><a href="#make_wanted-187"><span class="linenos">187</span></a><span class="sd">    Notes:</span>
-</span><span id="make_wanted-188"><a href="#make_wanted-188"><span class="linenos">188</span></a><span class="sd">    -   Should build a one line DataFrame. This Frame may select multiple data series,</span>
-</span><span id="make_wanted-189"><a href="#make_wanted-189"><span class="linenos">189</span></a><span class="sd">        when passed to fetch_multi. It also can be concatenated with other DataFrames</span>
-</span><span id="make_wanted-190"><a href="#make_wanted-190"><span class="linenos">190</span></a><span class="sd">        to build a larger selection.</span>
-</span><span id="make_wanted-191"><a href="#make_wanted-191"><span class="linenos">191</span></a><span class="sd">    -   If two match elements refer to the same dimension, only the `intersection` of the</span>
-</span><span id="make_wanted-192"><a href="#make_wanted-192"><span class="linenos">192</span></a><span class="sd">        matches will be returned.</span>
-</span><span id="make_wanted-193"><a href="#make_wanted-193"><span class="linenos">193</span></a>
-</span><span id="make_wanted-194"><a href="#make_wanted-194"><span class="linenos">194</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="make_wanted-195"><a href="#make_wanted-195"><span class="linenos">195</span></a>    <span class="n">dimensions</span> <span class="o">=</span> <span class="n">_validate_flow_and_dimensions</span><span class="p">(</span><span class="n">flow_id</span><span class="p">)</span>
-</span><span id="make_wanted-196"><a href="#make_wanted-196"><span class="linenos">196</span></a>    <span class="n">result_dict</span> <span class="o">=</span> <span class="n">_process_match_criteria</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">flow_id</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
-</span><span id="make_wanted-197"><a href="#make_wanted-197"><span class="linenos">197</span></a>
-</span><span id="make_wanted-198"><a href="#make_wanted-198"><span class="linenos">198</span></a>    <span class="c1"># Add flow_id and return as DataFrame</span>
-</span><span id="make_wanted-199"><a href="#make_wanted-199"><span class="linenos">199</span></a>    <span class="n">result_dict</span><span class="p">[</span><span class="s2">&quot;flow_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_id</span>
-</span><span id="make_wanted-200"><a href="#make_wanted-200"><span class="linenos">200</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">result_dict</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+</span><span id="make_wanted-187"><a href="#make_wanted-187"><span class="linenos">187</span></a><span class="sd">    Raises:</span>
+</span><span id="make_wanted-188"><a href="#make_wanted-188"><span class="linenos">188</span></a><span class="sd">        ValueError: If the flow_id is not valid or if no items match the criteria.</span>
+</span><span id="make_wanted-189"><a href="#make_wanted-189"><span class="linenos">189</span></a>
+</span><span id="make_wanted-190"><a href="#make_wanted-190"><span class="linenos">190</span></a><span class="sd">    Notes:</span>
+</span><span id="make_wanted-191"><a href="#make_wanted-191"><span class="linenos">191</span></a><span class="sd">    -   Should build a one line DataFrame. This Frame may select multiple data series,</span>
+</span><span id="make_wanted-192"><a href="#make_wanted-192"><span class="linenos">192</span></a><span class="sd">        when passed to fetch_multi. It also can be concatenated with other DataFrames</span>
+</span><span id="make_wanted-193"><a href="#make_wanted-193"><span class="linenos">193</span></a><span class="sd">        to build a larger selection.</span>
+</span><span id="make_wanted-194"><a href="#make_wanted-194"><span class="linenos">194</span></a><span class="sd">    -   If two match elements refer to the same dimension, only the `intersection` of the</span>
+</span><span id="make_wanted-195"><a href="#make_wanted-195"><span class="linenos">195</span></a><span class="sd">        matches will be returned.</span>
+</span><span id="make_wanted-196"><a href="#make_wanted-196"><span class="linenos">196</span></a>
+</span><span id="make_wanted-197"><a href="#make_wanted-197"><span class="linenos">197</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="make_wanted-198"><a href="#make_wanted-198"><span class="linenos">198</span></a>    <span class="n">dimensions</span> <span class="o">=</span> <span class="n">_validate_flow_and_dimensions</span><span class="p">(</span><span class="n">flow_id</span><span class="p">)</span>
+</span><span id="make_wanted-199"><a href="#make_wanted-199"><span class="linenos">199</span></a>    <span class="n">result_dict</span> <span class="o">=</span> <span class="n">_process_match_criteria</span><span class="p">(</span><span class="n">criteria</span><span class="p">,</span> <span class="n">flow_id</span><span class="p">,</span> <span class="n">dimensions</span><span class="p">)</span>
+</span><span id="make_wanted-200"><a href="#make_wanted-200"><span class="linenos">200</span></a>
+</span><span id="make_wanted-201"><a href="#make_wanted-201"><span class="linenos">201</span></a>    <span class="c1"># Add flow_id and return as DataFrame</span>
+</span><span id="make_wanted-202"><a href="#make_wanted-202"><span class="linenos">202</span></a>    <span class="n">result_dict</span><span class="p">[</span><span class="s2">&quot;flow_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flow_id</span>
+</span><span id="make_wanted-203"><a href="#make_wanted-203"><span class="linenos">203</span></a>    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">result_dict</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1204,8 +1381,11 @@ matches will be returned.</li>
 </span><span id="match_item-162"><a href="#match_item-162"><span class="linenos">162</span></a><span class="sd">    Returns:</span>
 </span><span id="match_item-163"><a href="#match_item-163"><span class="linenos">163</span></a><span class="sd">        MatchElement: A tuple representing the match element.</span>
 </span><span id="match_item-164"><a href="#match_item-164"><span class="linenos">164</span></a>
-</span><span id="match_item-165"><a href="#match_item-165"><span class="linenos">165</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="match_item-166"><a href="#match_item-166"><span class="linenos">166</span></a>    <span class="k">return</span> <span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">match_type</span><span class="p">)</span>
+</span><span id="match_item-165"><a href="#match_item-165"><span class="linenos">165</span></a><span class="sd">    Note:</span>
+</span><span id="match_item-166"><a href="#match_item-166"><span class="linenos">166</span></a><span class="sd">        This function is of little value. It is easier to create the tuple directly.</span>
+</span><span id="match_item-167"><a href="#match_item-167"><span class="linenos">167</span></a>
+</span><span id="match_item-168"><a href="#match_item-168"><span class="linenos">168</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="match_item-169"><a href="#match_item-169"><span class="linenos">169</span></a>    <span class="k">return</span> <span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">dimension</span><span class="p">,</span> <span class="n">match_type</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1218,6 +1398,9 @@ matches will be returned.</li>
 
 <p>Returns:
     MatchElement: A tuple representing the match element.</p>
+
+<p>Note:
+    This function is of little value. It is easier to create the tuple directly.</p>
 </div>
 
 
@@ -1233,32 +1416,32 @@ matches will be returned.</li>
 
     </div>
     <a class="headerlink" href="#measure_names"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="measure_names-106"><a href="#measure_names-106"><span class="linenos">106</span></a><span class="k">def</span><span class="w"> </span><span class="nf">measure_names</span><span class="p">(</span><span class="n">meta</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-</span><span id="measure_names-107"><a href="#measure_names-107"><span class="linenos">107</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the measure names for each row in the metadata DataFrame - (for y-axis labels).</span>
-</span><span id="measure_names-108"><a href="#measure_names-108"><span class="linenos">108</span></a>
-</span><span id="measure_names-109"><a href="#measure_names-109"><span class="linenos">109</span></a><span class="sd">    Args:</span>
-</span><span id="measure_names-110"><a href="#measure_names-110"><span class="linenos">110</span></a><span class="sd">        meta (pd.DataFrame): The metadata DataFrame.</span>
-</span><span id="measure_names-111"><a href="#measure_names-111"><span class="linenos">111</span></a>
-</span><span id="measure_names-112"><a href="#measure_names-112"><span class="linenos">112</span></a><span class="sd">    Returns:</span>
-</span><span id="measure_names-113"><a href="#measure_names-113"><span class="linenos">113</span></a><span class="sd">        pd.Series: A Series containing the measure names, indexed by the row labels.</span>
-</span><span id="measure_names-114"><a href="#measure_names-114"><span class="linenos">114</span></a>
-</span><span id="measure_names-115"><a href="#measure_names-115"><span class="linenos">115</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="measure_names-116"><a href="#measure_names-116"><span class="linenos">116</span></a>    <span class="n">series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
-</span><span id="measure_names-117"><a href="#measure_names-117"><span class="linenos">117</span></a>    <span class="n">duplicate_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot; Number&quot;</span>
-</span><span id="measure_names-118"><a href="#measure_names-118"><span class="linenos">118</span></a>    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
-</span><span id="measure_names-119"><a href="#measure_names-119"><span class="linenos">119</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>  <span class="c1"># worst case scenario</span>
-</span><span id="measure_names-120"><a href="#measure_names-120"><span class="linenos">120</span></a>        <span class="k">if</span> <span class="s2">&quot;UNIT_MEASURE&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
-</span><span id="measure_names-121"><a href="#measure_names-121"><span class="linenos">121</span></a>            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;UNIT_MEASURE&quot;</span><span class="p">])</span>  <span class="c1"># a better base case</span>
-</span><span id="measure_names-122"><a href="#measure_names-122"><span class="linenos">122</span></a>        <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;UNIT_MULT&quot;</span><span class="p">):</span>
-</span><span id="measure_names-123"><a href="#measure_names-123"><span class="linenos">123</span></a>            <span class="k">try</span><span class="p">:</span>
-</span><span id="measure_names-124"><a href="#measure_names-124"><span class="linenos">124</span></a>                <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;UNIT_MULT&quot;</span><span class="p">])</span>
-</span><span id="measure_names-125"><a href="#measure_names-125"><span class="linenos">125</span></a>                <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">INDICIES</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-</span><span id="measure_names-126"><a href="#measure_names-126"><span class="linenos">126</span></a>                    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">INDICIES</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># best case</span>
-</span><span id="measure_names-127"><a href="#measure_names-127"><span class="linenos">127</span></a>            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-</span><span id="measure_names-128"><a href="#measure_names-128"><span class="linenos">128</span></a>                <span class="k">pass</span>
-</span><span id="measure_names-129"><a href="#measure_names-129"><span class="linenos">129</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="n">duplicate_number</span><span class="p">)</span>
-</span><span id="measure_names-130"><a href="#measure_names-130"><span class="linenos">130</span></a>        <span class="n">series</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
-</span><span id="measure_names-131"><a href="#measure_names-131"><span class="linenos">131</span></a>    <span class="k">return</span> <span class="n">series</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="measure_names-108"><a href="#measure_names-108"><span class="linenos">108</span></a><span class="k">def</span><span class="w"> </span><span class="nf">measure_names</span><span class="p">(</span><span class="n">meta</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+</span><span id="measure_names-109"><a href="#measure_names-109"><span class="linenos">109</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the measure names for each row in the metadata DataFrame - (for y-axis labels).</span>
+</span><span id="measure_names-110"><a href="#measure_names-110"><span class="linenos">110</span></a>
+</span><span id="measure_names-111"><a href="#measure_names-111"><span class="linenos">111</span></a><span class="sd">    Args:</span>
+</span><span id="measure_names-112"><a href="#measure_names-112"><span class="linenos">112</span></a><span class="sd">        meta (pd.DataFrame): The metadata DataFrame.</span>
+</span><span id="measure_names-113"><a href="#measure_names-113"><span class="linenos">113</span></a>
+</span><span id="measure_names-114"><a href="#measure_names-114"><span class="linenos">114</span></a><span class="sd">    Returns:</span>
+</span><span id="measure_names-115"><a href="#measure_names-115"><span class="linenos">115</span></a><span class="sd">        pd.Series: A Series containing the measure names, indexed by the row labels.</span>
+</span><span id="measure_names-116"><a href="#measure_names-116"><span class="linenos">116</span></a>
+</span><span id="measure_names-117"><a href="#measure_names-117"><span class="linenos">117</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="measure_names-118"><a href="#measure_names-118"><span class="linenos">118</span></a>    <span class="n">series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+</span><span id="measure_names-119"><a href="#measure_names-119"><span class="linenos">119</span></a>    <span class="n">duplicate_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot; Number&quot;</span>
+</span><span id="measure_names-120"><a href="#measure_names-120"><span class="linenos">120</span></a>    <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+</span><span id="measure_names-121"><a href="#measure_names-121"><span class="linenos">121</span></a>        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>  <span class="c1"># worst case scenario</span>
+</span><span id="measure_names-122"><a href="#measure_names-122"><span class="linenos">122</span></a>        <span class="k">if</span> <span class="s2">&quot;UNIT_MEASURE&quot;</span> <span class="ow">in</span> <span class="n">row</span><span class="p">:</span>
+</span><span id="measure_names-123"><a href="#measure_names-123"><span class="linenos">123</span></a>            <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;UNIT_MEASURE&quot;</span><span class="p">])</span>  <span class="c1"># a better base case</span>
+</span><span id="measure_names-124"><a href="#measure_names-124"><span class="linenos">124</span></a>        <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;UNIT_MULT&quot;</span><span class="p">):</span>
+</span><span id="measure_names-125"><a href="#measure_names-125"><span class="linenos">125</span></a>            <span class="k">try</span><span class="p">:</span>
+</span><span id="measure_names-126"><a href="#measure_names-126"><span class="linenos">126</span></a>                <span class="n">index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;UNIT_MULT&quot;</span><span class="p">])</span>
+</span><span id="measure_names-127"><a href="#measure_names-127"><span class="linenos">127</span></a>                <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">INDICIES</span> <span class="ow">and</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+</span><span id="measure_names-128"><a href="#measure_names-128"><span class="linenos">128</span></a>                    <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">INDICIES</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>  <span class="c1"># best case</span>
+</span><span id="measure_names-129"><a href="#measure_names-129"><span class="linenos">129</span></a>            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+</span><span id="measure_names-130"><a href="#measure_names-130"><span class="linenos">130</span></a>                <span class="k">pass</span>
+</span><span id="measure_names-131"><a href="#measure_names-131"><span class="linenos">131</span></a>        <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="n">duplicate_number</span><span class="p">)</span>
+</span><span id="measure_names-132"><a href="#measure_names-132"><span class="linenos">132</span></a>        <span class="n">series</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span>
+</span><span id="measure_names-133"><a href="#measure_names-133"><span class="linenos">133</span></a>    <span class="k">return</span> <span class="n">series</span>
 </span></pre></div>
 
 
@@ -1284,48 +1467,48 @@ matches will be returned.</li>
 
     </div>
     <a class="headerlink" href="#recalibrate"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="recalibrate-134"><a href="#recalibrate-134"><span class="linenos">134</span></a><span class="k">def</span><span class="w"> </span><span class="nf">recalibrate</span><span class="p">(</span>
-</span><span id="recalibrate-135"><a href="#recalibrate-135"><span class="linenos">135</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">as_a_whole</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-</span><span id="recalibrate-136"><a href="#recalibrate-136"><span class="linenos">136</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
-</span><span id="recalibrate-137"><a href="#recalibrate-137"><span class="linenos">137</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Recalibrate the data so that its maximum value is between 1 and 1000.</span>
-</span><span id="recalibrate-138"><a href="#recalibrate-138"><span class="linenos">138</span></a>
-</span><span id="recalibrate-139"><a href="#recalibrate-139"><span class="linenos">139</span></a><span class="sd">    Args:</span>
-</span><span id="recalibrate-140"><a href="#recalibrate-140"><span class="linenos">140</span></a><span class="sd">        units (pd.Series): The units of measure (as returned by measure_names()).</span>
-</span><span id="recalibrate-141"><a href="#recalibrate-141"><span class="linenos">141</span></a><span class="sd">        data (pd.DataFrame): The data to recalibrate.</span>
-</span><span id="recalibrate-142"><a href="#recalibrate-142"><span class="linenos">142</span></a><span class="sd">        as_a_whole (bool): If True, recalibrate the data as a whole, otherwise</span>
-</span><span id="recalibrate-143"><a href="#recalibrate-143"><span class="linenos">143</span></a><span class="sd">            recalibrate each column separately.</span>
-</span><span id="recalibrate-144"><a href="#recalibrate-144"><span class="linenos">144</span></a>
-</span><span id="recalibrate-145"><a href="#recalibrate-145"><span class="linenos">145</span></a><span class="sd">    Returns:</span>
-</span><span id="recalibrate-146"><a href="#recalibrate-146"><span class="linenos">146</span></a><span class="sd">        tuple[pd.Series, pd.DataFrame]: The recalibrated units and recalibrated data.</span>
-</span><span id="recalibrate-147"><a href="#recalibrate-147"><span class="linenos">147</span></a>
-</span><span id="recalibrate-148"><a href="#recalibrate-148"><span class="linenos">148</span></a><span class="sd">    Why recalibrate?</span>
-</span><span id="recalibrate-149"><a href="#recalibrate-149"><span class="linenos">149</span></a><span class="sd">        So that the chart is easier to read and interpret, in units that are more familiar.</span>
-</span><span id="recalibrate-150"><a href="#recalibrate-150"><span class="linenos">150</span></a>
-</span><span id="recalibrate-151"><a href="#recalibrate-151"><span class="linenos">151</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="recalibrate-152"><a href="#recalibrate-152"><span class="linenos">152</span></a>    <span class="c1"># --- data/argument validation</span>
-</span><span id="recalibrate-153"><a href="#recalibrate-153"><span class="linenos">153</span></a>    <span class="k">if</span> <span class="n">units</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-</span><span id="recalibrate-154"><a href="#recalibrate-154"><span class="linenos">154</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The units Series is empty.&quot;</span><span class="p">)</span>
-</span><span id="recalibrate-155"><a href="#recalibrate-155"><span class="linenos">155</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
-</span><span id="recalibrate-156"><a href="#recalibrate-156"><span class="linenos">156</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The units Series must have the same length as the data DataFrame&#39;s columns.&quot;</span><span class="p">)</span>
-</span><span id="recalibrate-157"><a href="#recalibrate-157"><span class="linenos">157</span></a>    <span class="k">if</span> <span class="n">as_a_whole</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_all_the_same</span><span class="p">(</span><span class="n">units</span><span class="p">):</span>
-</span><span id="recalibrate-158"><a href="#recalibrate-158"><span class="linenos">158</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot recalibrate as a whole when there are multiple units of measure.&quot;</span><span class="p">)</span>
-</span><span id="recalibrate-159"><a href="#recalibrate-159"><span class="linenos">159</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">units</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
-</span><span id="recalibrate-160"><a href="#recalibrate-160"><span class="linenos">160</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The units Series must all be indexed by the data DataFrame&#39;s columns.&quot;</span><span class="p">)</span>
-</span><span id="recalibrate-161"><a href="#recalibrate-161"><span class="linenos">161</span></a>
-</span><span id="recalibrate-162"><a href="#recalibrate-162"><span class="linenos">162</span></a>    <span class="k">if</span> <span class="n">as_a_whole</span><span class="p">:</span>
-</span><span id="recalibrate-163"><a href="#recalibrate-163"><span class="linenos">163</span></a>        <span class="n">label</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-</span><span id="recalibrate-164"><a href="#recalibrate-164"><span class="linenos">164</span></a>        <span class="n">datax</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">refactor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
-</span><span id="recalibrate-165"><a href="#recalibrate-165"><span class="linenos">165</span></a>        <span class="n">units</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="n">label</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">))</span>
-</span><span id="recalibrate-166"><a href="#recalibrate-166"><span class="linenos">166</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">datax</span><span class="p">),</span> <span class="n">units</span>
-</span><span id="recalibrate-167"><a href="#recalibrate-167"><span class="linenos">167</span></a>
-</span><span id="recalibrate-168"><a href="#recalibrate-168"><span class="linenos">168</span></a>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-</span><span id="recalibrate-169"><a href="#recalibrate-169"><span class="linenos">169</span></a>        <span class="n">label</span> <span class="o">=</span> <span class="n">units</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
-</span><span id="recalibrate-170"><a href="#recalibrate-170"><span class="linenos">170</span></a>        <span class="n">series</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
-</span><span id="recalibrate-171"><a href="#recalibrate-171"><span class="linenos">171</span></a>        <span class="n">seriesx</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">refactor</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
-</span><span id="recalibrate-172"><a href="#recalibrate-172"><span class="linenos">172</span></a>        <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series&quot;</span><span class="p">,</span> <span class="n">seriesx</span><span class="p">)</span>
-</span><span id="recalibrate-173"><a href="#recalibrate-173"><span class="linenos">173</span></a>        <span class="n">units</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
-</span><span id="recalibrate-174"><a href="#recalibrate-174"><span class="linenos">174</span></a>
-</span><span id="recalibrate-175"><a href="#recalibrate-175"><span class="linenos">175</span></a>    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">units</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="recalibrate-136"><a href="#recalibrate-136"><span class="linenos">136</span></a><span class="k">def</span><span class="w"> </span><span class="nf">recalibrate</span><span class="p">(</span>
+</span><span id="recalibrate-137"><a href="#recalibrate-137"><span class="linenos">137</span></a>    <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">as_a_whole</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+</span><span id="recalibrate-138"><a href="#recalibrate-138"><span class="linenos">138</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+</span><span id="recalibrate-139"><a href="#recalibrate-139"><span class="linenos">139</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Recalibrate the data so that its maximum value is between 1 and 1000.</span>
+</span><span id="recalibrate-140"><a href="#recalibrate-140"><span class="linenos">140</span></a>
+</span><span id="recalibrate-141"><a href="#recalibrate-141"><span class="linenos">141</span></a><span class="sd">    Args:</span>
+</span><span id="recalibrate-142"><a href="#recalibrate-142"><span class="linenos">142</span></a><span class="sd">        units (pd.Series): The units of measure (as returned by measure_names()).</span>
+</span><span id="recalibrate-143"><a href="#recalibrate-143"><span class="linenos">143</span></a><span class="sd">        data (pd.DataFrame): The data to recalibrate.</span>
+</span><span id="recalibrate-144"><a href="#recalibrate-144"><span class="linenos">144</span></a><span class="sd">        as_a_whole (bool): If True, recalibrate the data as a whole, otherwise</span>
+</span><span id="recalibrate-145"><a href="#recalibrate-145"><span class="linenos">145</span></a><span class="sd">            recalibrate each column separately.</span>
+</span><span id="recalibrate-146"><a href="#recalibrate-146"><span class="linenos">146</span></a>
+</span><span id="recalibrate-147"><a href="#recalibrate-147"><span class="linenos">147</span></a><span class="sd">    Returns:</span>
+</span><span id="recalibrate-148"><a href="#recalibrate-148"><span class="linenos">148</span></a><span class="sd">        tuple[pd.Series, pd.DataFrame]: The recalibrated units and recalibrated data.</span>
+</span><span id="recalibrate-149"><a href="#recalibrate-149"><span class="linenos">149</span></a>
+</span><span id="recalibrate-150"><a href="#recalibrate-150"><span class="linenos">150</span></a><span class="sd">    Why recalibrate?</span>
+</span><span id="recalibrate-151"><a href="#recalibrate-151"><span class="linenos">151</span></a><span class="sd">        So that the chart is easier to read and interpret, in units that are more familiar.</span>
+</span><span id="recalibrate-152"><a href="#recalibrate-152"><span class="linenos">152</span></a>
+</span><span id="recalibrate-153"><a href="#recalibrate-153"><span class="linenos">153</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="recalibrate-154"><a href="#recalibrate-154"><span class="linenos">154</span></a>    <span class="c1"># --- data/argument validation</span>
+</span><span id="recalibrate-155"><a href="#recalibrate-155"><span class="linenos">155</span></a>    <span class="k">if</span> <span class="n">units</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+</span><span id="recalibrate-156"><a href="#recalibrate-156"><span class="linenos">156</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The units Series is empty.&quot;</span><span class="p">)</span>
+</span><span id="recalibrate-157"><a href="#recalibrate-157"><span class="linenos">157</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+</span><span id="recalibrate-158"><a href="#recalibrate-158"><span class="linenos">158</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The units Series must have the same length as the data DataFrame&#39;s columns.&quot;</span><span class="p">)</span>
+</span><span id="recalibrate-159"><a href="#recalibrate-159"><span class="linenos">159</span></a>    <span class="k">if</span> <span class="n">as_a_whole</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_all_the_same</span><span class="p">(</span><span class="n">units</span><span class="p">):</span>
+</span><span id="recalibrate-160"><a href="#recalibrate-160"><span class="linenos">160</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot recalibrate as a whole when there are multiple units of measure.&quot;</span><span class="p">)</span>
+</span><span id="recalibrate-161"><a href="#recalibrate-161"><span class="linenos">161</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">units</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+</span><span id="recalibrate-162"><a href="#recalibrate-162"><span class="linenos">162</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The units Series must all be indexed by the data DataFrame&#39;s columns.&quot;</span><span class="p">)</span>
+</span><span id="recalibrate-163"><a href="#recalibrate-163"><span class="linenos">163</span></a>
+</span><span id="recalibrate-164"><a href="#recalibrate-164"><span class="linenos">164</span></a>    <span class="k">if</span> <span class="n">as_a_whole</span><span class="p">:</span>
+</span><span id="recalibrate-165"><a href="#recalibrate-165"><span class="linenos">165</span></a>        <span class="n">label</span> <span class="o">=</span> <span class="n">units</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</span><span id="recalibrate-166"><a href="#recalibrate-166"><span class="linenos">166</span></a>        <span class="n">datax</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">_refactor</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+</span><span id="recalibrate-167"><a href="#recalibrate-167"><span class="linenos">167</span></a>        <span class="n">units</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="n">label</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">))</span>
+</span><span id="recalibrate-168"><a href="#recalibrate-168"><span class="linenos">168</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">datax</span><span class="p">),</span> <span class="n">units</span>
+</span><span id="recalibrate-169"><a href="#recalibrate-169"><span class="linenos">169</span></a>
+</span><span id="recalibrate-170"><a href="#recalibrate-170"><span class="linenos">170</span></a>    <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+</span><span id="recalibrate-171"><a href="#recalibrate-171"><span class="linenos">171</span></a>        <span class="n">label</span> <span class="o">=</span> <span class="n">units</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+</span><span id="recalibrate-172"><a href="#recalibrate-172"><span class="linenos">172</span></a>        <span class="n">series</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+</span><span id="recalibrate-173"><a href="#recalibrate-173"><span class="linenos">173</span></a>        <span class="n">seriesx</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">_refactor</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+</span><span id="recalibrate-174"><a href="#recalibrate-174"><span class="linenos">174</span></a>        <span class="n">data</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series&quot;</span><span class="p">,</span> <span class="n">seriesx</span><span class="p">)</span>
+</span><span id="recalibrate-175"><a href="#recalibrate-175"><span class="linenos">175</span></a>        <span class="n">units</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">=</span> <span class="n">label</span>
+</span><span id="recalibrate-176"><a href="#recalibrate-176"><span class="linenos">176</span></a>
+</span><span id="recalibrate-177"><a href="#recalibrate-177"><span class="linenos">177</span></a>    <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">units</span>
 </span></pre></div>
 
 
@@ -1357,19 +1540,19 @@ matches will be returned.</li>
 
     </div>
     <a class="headerlink" href="#recalibrate_series"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="recalibrate_series-178"><a href="#recalibrate_series-178"><span class="linenos">178</span></a><span class="k">def</span><span class="w"> </span><span class="nf">recalibrate_series</span><span class="p">(</span><span class="n">series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-</span><span id="recalibrate_series-179"><a href="#recalibrate_series-179"><span class="linenos">179</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Recalibrate a Series with a label.</span>
-</span><span id="recalibrate_series-180"><a href="#recalibrate_series-180"><span class="linenos">180</span></a>
-</span><span id="recalibrate_series-181"><a href="#recalibrate_series-181"><span class="linenos">181</span></a><span class="sd">    Args:</span>
-</span><span id="recalibrate_series-182"><a href="#recalibrate_series-182"><span class="linenos">182</span></a><span class="sd">        series (pd.Series): The Series to recalibrate.</span>
-</span><span id="recalibrate_series-183"><a href="#recalibrate_series-183"><span class="linenos">183</span></a><span class="sd">        label (str): The label for the Series.</span>
-</span><span id="recalibrate_series-184"><a href="#recalibrate_series-184"><span class="linenos">184</span></a>
-</span><span id="recalibrate_series-185"><a href="#recalibrate_series-185"><span class="linenos">185</span></a><span class="sd">    Returns:</span>
-</span><span id="recalibrate_series-186"><a href="#recalibrate_series-186"><span class="linenos">186</span></a><span class="sd">        tuple[pd.Series, str]: The recalibrated Series and label.</span>
-</span><span id="recalibrate_series-187"><a href="#recalibrate_series-187"><span class="linenos">187</span></a>
-</span><span id="recalibrate_series-188"><a href="#recalibrate_series-188"><span class="linenos">188</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="recalibrate_series-189"><a href="#recalibrate_series-189"><span class="linenos">189</span></a>    <span class="n">seriesx</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">refactor</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
-</span><span id="recalibrate_series-190"><a href="#recalibrate_series-190"><span class="linenos">190</span></a>    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series&quot;</span><span class="p">,</span> <span class="n">seriesx</span><span class="p">),</span> <span class="n">label</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="recalibrate_series-180"><a href="#recalibrate_series-180"><span class="linenos">180</span></a><span class="k">def</span><span class="w"> </span><span class="nf">recalibrate_series</span><span class="p">(</span><span class="n">series</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+</span><span id="recalibrate_series-181"><a href="#recalibrate_series-181"><span class="linenos">181</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Recalibrate a Series with a label.</span>
+</span><span id="recalibrate_series-182"><a href="#recalibrate_series-182"><span class="linenos">182</span></a>
+</span><span id="recalibrate_series-183"><a href="#recalibrate_series-183"><span class="linenos">183</span></a><span class="sd">    Args:</span>
+</span><span id="recalibrate_series-184"><a href="#recalibrate_series-184"><span class="linenos">184</span></a><span class="sd">        series (pd.Series): The Series to recalibrate.</span>
+</span><span id="recalibrate_series-185"><a href="#recalibrate_series-185"><span class="linenos">185</span></a><span class="sd">        label (str): The label for the Series.</span>
+</span><span id="recalibrate_series-186"><a href="#recalibrate_series-186"><span class="linenos">186</span></a>
+</span><span id="recalibrate_series-187"><a href="#recalibrate_series-187"><span class="linenos">187</span></a><span class="sd">    Returns:</span>
+</span><span id="recalibrate_series-188"><a href="#recalibrate_series-188"><span class="linenos">188</span></a><span class="sd">        tuple[pd.Series, str]: The recalibrated Series and label.</span>
+</span><span id="recalibrate_series-189"><a href="#recalibrate_series-189"><span class="linenos">189</span></a>
+</span><span id="recalibrate_series-190"><a href="#recalibrate_series-190"><span class="linenos">190</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="recalibrate_series-191"><a href="#recalibrate_series-191"><span class="linenos">191</span></a>    <span class="n">seriesx</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="n">_refactor</span><span class="p">(</span><span class="n">series</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
+</span><span id="recalibrate_series-192"><a href="#recalibrate_series-192"><span class="linenos">192</span></a>    <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;pd.Series&quot;</span><span class="p">,</span> <span class="n">seriesx</span><span class="p">),</span> <span class="n">label</span>
 </span></pre></div>
 
 

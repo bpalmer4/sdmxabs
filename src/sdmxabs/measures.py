@@ -1,5 +1,6 @@
 """Manage the measure names and units of measurement for ABS data (for naming the y-axis)."""
 
+import math
 from typing import cast
 
 import numpy as np
@@ -23,10 +24,11 @@ INDICIES = {
 }
 FACTORS = {v: k for k, v in INDICIES.items()}
 DONT_RECALIBRATE = ("Percent", "Index Numbers", "Proportion")
+MAX_FACTOR = max(INDICIES.keys())
 
 RECALIBRATION_THRESHOLD = 1_000
-FACTOR_INCREMENT = 3
-MIN_SAFE_FACTOR = 3
+FACTOR_INCREMENT = int(round(math.log10(RECALIBRATION_THRESHOLD), 0))
+MIN_SAFE_FACTOR = FACTOR_INCREMENT
 
 
 # --- private functions
@@ -52,8 +54,8 @@ def _should_skip_recalibration(data: pd.DataFrame, label: str) -> bool:
     return bool(data.fillna(0).eq(0).all().all())  # all values are zero or NaN
 
 
-def refactor(data: pd.DataFrame | pd.Series, label: str) -> tuple[pd.DataFrame | pd.Series, str]:
-    """Refactor the data and label for consistency."""
+def _refactor(data: pd.DataFrame | pd.Series, label: str) -> tuple[pd.DataFrame | pd.Series, str]:
+    """Refactor the data and label so that the maximum absolute value is between 1 and 1000."""
     # --- make everything a DataFrame, copy as to not affect the original data
     revert_to_series = isinstance(data, pd.Series)
     d: pd.DataFrame = pd.DataFrame(data.copy())
@@ -70,12 +72,12 @@ def refactor(data: pd.DataFrame | pd.Series, label: str) -> tuple[pd.DataFrame |
         return data, label
 
     # --- recalibrate value down (pushes factor up)
-    while d.abs().to_numpy().max() > RECALIBRATION_THRESHOLD and factor < max(INDICIES.keys()):
+    while d.abs().to_numpy().max() > RECALIBRATION_THRESHOLD and factor < MAX_FACTOR:
         d = d / RECALIBRATION_THRESHOLD
         factor += FACTOR_INCREMENT
 
     # --- recalibrate value up (pulls factor down)
-    while d.abs().to_numpy().min() < 1 and factor >= MIN_SAFE_FACTOR:
+    while d.abs().to_numpy().max() <= 1 and factor >= MIN_SAFE_FACTOR:
         d = d * RECALIBRATION_THRESHOLD
         factor -= FACTOR_INCREMENT
 
@@ -160,14 +162,14 @@ def recalibrate(
 
     if as_a_whole:
         label = units.iloc[0]
-        datax, label = refactor(data, label)
+        datax, label = _refactor(data, label)
         units.index = pd.Index([label] * len(units))
         return pd.DataFrame(datax), units
 
     for column in data.columns:
         label = units[column]
         series = data[column]
-        seriesx, label = refactor(series, label)
+        seriesx, label = _refactor(series, label)
         data[column] = cast("pd.Series", seriesx)
         units[column] = label
 
@@ -185,7 +187,7 @@ def recalibrate_series(series: pd.Series, label: str) -> tuple[pd.Series, str]:
         tuple[pd.Series, str]: The recalibrated Series and label.
 
     """
-    seriesx, label = refactor(series, label)
+    seriesx, label = _refactor(series, label)
     return cast("pd.Series", seriesx), label
 
 

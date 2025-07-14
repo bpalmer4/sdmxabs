@@ -6,7 +6,7 @@ import pandas as pd
 
 from sdmxabs.download_cache import GetFileKwargs
 from sdmxabs.fetch_selection import MatchType as Mt
-from sdmxabs.fetch_selection import fetch_selection, match_item
+from sdmxabs.fetch_selection import fetch_selection
 
 # --- constants
 PRICE_MAP = {"cvm": "Chain volume measures", "cp": "Current prices"}  # MEASURE
@@ -59,11 +59,11 @@ def fetch_gdp(
         raise ValueError(error)
 
     # build a selection criteria
-    selection_criteria = []
-    selection_criteria.append(match_item(SEAS_MAP[seasonality], "TSEST", Mt.EXACT))
-    selection_criteria.append(match_item(PRICE_MAP[price_measure], "MEASURE", Mt.EXACT))
-    selection_criteria.append(match_item("Gross domestic product", "DATA_ITEM", Mt.EXACT))
-
+    selection_criteria = [
+        (SEAS_MAP[seasonality], "TSEST", Mt.EXACT),
+        (PRICE_MAP[price_measure], "MEASURE", Mt.EXACT),
+        ("Gross domestic product", "DATA_ITEM", Mt.EXACT),
+    ]
     # return the data
     flow_id = "ANA_AGG"
     return fetch_selection(flow_id, selection_criteria, parameters, validate=validate, **kwargs)

@@ -161,6 +161,9 @@ def match_item(
     Returns:
         MatchElement: A tuple representing the match element.
 
+    Note:
+        This function is of little value. It is easier to create the tuple directly.
+
     """
     return (pattern, dimension, match_type)
 

@@ -17,7 +17,7 @@ from sdmxabs.xml_base import NAME_SPACES, URL_STEM, acquire_xml
 FlowMetaDict = dict[str, dict[str, str]]  # useful type alias
 
 
-# --- functions
+# --- public functions
 @cache
 def data_flows(flow_id: str = "all", **kwargs: Unpack[GetFileKwargs]) -> FlowMetaDict:
     """Get the toplevel metadata from the ABS SDMX API.
@@ -202,6 +202,22 @@ def validate_code_value(dim: str, value: str, required: pd.DataFrame) -> str:
     return ""  # empty string if no problem
 
 
+def frame(f: FlowMetaDict) -> pd.DataFrame:
+    """Convert a FlowMetaDict to a pandas DataFrame.
+
+    Args:
+        f (FlowMetaDict): The flow metadata dictionary to convert.
+
+    Returns:
+        pd.DataFrame: A DataFrame representation of the flow metadata.
+
+    Note: This is a utility function to help visualize the flow metadata.
+
+    """
+    return pd.DataFrame(f).T
+
+
+# --- private functions
 def publish_alerts(flow_id: str, missing: list[str], extra: list[str], wrong: list[str]) -> None:
     """Publish alerts for missing, extra, or wrongly valued dimensions."""
     if missing:
@@ -278,6 +294,7 @@ if __name__ == "__main__":
         # --- data_flows -- all dataflows
         flows = data_flows(modality="prefer-cache", verbose=True)
         print("Length:", len(flows))
+        print(frame(flows).head())
 
         # --- data_flows -- specific dataflow
         flows = data_flows(flow_id="WPI", modality="prefer-cache")

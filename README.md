@@ -27,6 +27,8 @@ Key functions
 
 `code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs])-> dict[str, dict[str, str]]` The data is returned in a dictionary of codes and their associated information. The code list identifiers (cl_id) can be found in the data dimensions (see previous). You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `pd.DataFrane(code_lists(cl_id)).T`
 
+`frame(f: dict[str, dict[str, str]]) -> pd.DataFrame`- a utility function to convert the output from the key flow metadata functions above to a more human readable pandas DataFrame. 
+
 Once you know what data you want, you can specify that information in a fetch() request.
 
 `fetch(flow_id: str, dims: dict[str, str] | None, validate: bool, **kwargs: Unpack[GetFileKwargs]) -> tuple[pd.DataFrame, pd.DataFrame]:` - this function returns two DataFrames, the first is for data. The second is for the associated meta data. The column names in the data DataFrame will match the row names in the meta DataFrame. The dims argument is a dictionary, where the key is a dimension, and the value one or more codes from the relevant code list. Multiple values are concatenated with the "+" symbol. For example, the key value pair for extracting Seasonally Adjusted and Trend data is typically, `{"TSEST": "20+30"}`, where "TSEST" is the data dimenion. The validate argument reports if there were any issues translating your dimensions dictionary into  the SDMX key. 
@@ -38,6 +40,8 @@ Once you know what data you want, you can specify that information in a fetch() 
 `measure_names(meta: pd.DataFrame) -> pd.Series:` a convenience function to convert a metadata DataFrame into a series of y-axis labels.
 
 `recalibrate(data: pd.DataFrame, units: pd.Series, as_a_whole: bool = False) -> tuple[pd.DataFrame, pd.Series]` - a convenience function to recalibrate a DataFrame returned from a `fetch` function so that the absolute maximum value is between 1 and 1000. The labels (from `measure_names()`) are also adjusted.
+
+`recalibrate_series(series: pd.Series, label: str) -> tuple[pd.Series, str]` - similar to recalibrate, for a single series.
 
 
 

@@ -1,8 +1,9 @@
 [project]
 name = "sdmxabs"
-version = "0.1.7"
+version = "0.1.8"
 description = "Download data from the Australian Bureau of Statistics (ABS) using its SDMX API"
 readme = "README.md"
+license = { text = "LICENSE" }   # MIT License
 requires-python = ">=3.13"
 
 dependencies = [
@@ -13,13 +14,11 @@ dependencies = [
 
     # - internet
     "requests",
-    "types-requests",
     "defusedxml",
-    "types-defusedxml",
 
     # - data science
     "pandas",
-    "tabulate",
+    "numpy",
 ]
 
 [dependency-groups]
@@ -34,7 +33,8 @@ dev = [
     
     # - typing
     "pandas-stubs",
-    "types-tabulate",
+    "types-requests",
+    "types-defusedxml",
 
     # --- testing
     "ipython",
