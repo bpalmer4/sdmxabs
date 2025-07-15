@@ -28,13 +28,11 @@ def _erp_population(
     """Fetch Estimated Resident Population (ERP) data from the ABS SDMX API."""
     selection_criteria = [
         ("Estimated Resident Population", "MEASURE", Mt.EXACT),
-        (state, "REGION", Mt.EXACT),
         ("Q", "FREQ", Mt.EXACT),
     ]
+    if state:
+        selection_criteria.append((state, "REGION", Mt.EXACT))
     d, m = fetch_selection(FLOW_ID, selection_criteria, parameters, validate=validate, **kwargs)
-    if len(m) != 1:
-        raise ValueError(f"Expected 1 match for {state}, found {len(m)}")
-    d.columns = m.index = pd.Index(["Estimated Resident Population"])
     return d, m
 
 
@@ -44,7 +42,7 @@ def _na_population(
     validate: bool,
     **kwargs: Unpack[GetFileKwargs],
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Extrapolate population from the National Accounts data from the ABS SDMX API."""
+    """Extrapolate Australian population from the National Accounts data from the ABS SDMX API."""
     # --- Fetch GDP data
     gdp, _ = fetch_gdp(
         seasonality="o",
@@ -192,6 +190,7 @@ def fetch_state_pop(
 
     Args:
         state (str): State/territory name or case-insensitive abbreviation (e.g., "NSW", "Vic", "qld", etc.).
+            [Note: Use "" or "all" for the population estimates for all states.]
         parameters (dict[str, str] | None): Additional parameters for the API request,
             such as 'startPeriod'.
         projection (bool, optional): If True, make a projection forward to the current quarter
@@ -209,7 +208,10 @@ def fetch_state_pop(
     if verbose:
         print(f"fetch_state_pop(): {state=} {validate=} {kwargs=}")
 
-    full_state_name = _state_name_from_abbrev(state)
+    if state.lower() in ("", "all"):
+        full_state_name: str = ""
+    else:
+        full_state_name = _state_name_from_abbrev(state)
 
     data, meta = _erp_population(full_state_name, parameters, validate=validate, **kwargs)
 
@@ -243,6 +245,12 @@ if __name__ == "__main__":
         # Test projection
         data, _meta = fetch_state_pop("SA", projection=True)
         print(f"SA with projection: {data.index[-1]} = {data.tail(1).iloc[0, 0]:,.0f}")
+
+        # Test getting all state populations
+        data, meta = fetch_state_pop("all", projection=False, validate=False)
+        rename = dict(zip(meta.index, meta["REGION"], strict=False))
+        data = data.rename(columns=rename)
+        print(f"All states:\n{data.tail(1).T}")
 
     print("\n" + "=" * 50)
     test_fetch_pop()

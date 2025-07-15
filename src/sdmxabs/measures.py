@@ -58,7 +58,7 @@ def _refactor(data: pd.DataFrame | pd.Series, label: str) -> tuple[pd.DataFrame 
     """Refactor the data and label so that the maximum absolute value is between 1 and 1000."""
     # --- make everything a DataFrame, copy as to not affect the original data
     revert_to_series = isinstance(data, pd.Series)
-    d: pd.DataFrame = pd.DataFrame(data.copy())
+    d: pd.DataFrame = pd.DataFrame(data.copy()).fillna(0)  # temporarily remove NaNs
 
     # --- dont bother cases
     if _should_skip_recalibration(d, label):
@@ -85,6 +85,9 @@ def _refactor(data: pd.DataFrame | pd.Series, label: str) -> tuple[pd.DataFrame 
     if ofactor == factor:
         # No recalibration was necessary
         return data, label
+
+    # --- restore the NaNs that were temporarily removed
+    d = d.where(data.notna(), np.nan)
 
     # --- update the label
     old_label = INDICIES.get(ofactor, "")
@@ -161,17 +164,17 @@ def recalibrate(
         raise ValueError("The units Series must all be indexed by the data DataFrame's columns.")
 
     if as_a_whole:
-        label = units.iloc[0]
-        datax, label = _refactor(data, label)
-        units.index = pd.Index([label] * len(units))
-        return pd.DataFrame(datax), units
+        str_label: str = units.iloc[0]
+        datax, str_label = _refactor(data, str_label)
+        new_units = pd.Series([str_label] * len(data.columns), index=data.columns)
+        return pd.DataFrame(datax), new_units
 
     for column in data.columns:
-        label = units[column]
+        str_label = units[column]
         series = data[column]
-        seriesx, label = _refactor(series, label)
+        seriesx, str_label = _refactor(series, str_label)
         data[column] = cast("pd.Series", seriesx)
-        units[column] = label
+        units[column] = str_label
 
     return data, units
 
