@@ -1,6 +1,6 @@
 sdmxabs
 -------
-sdmxabs is a small python package to download data from the Australian Bureau of Statistics using its SDMX API. SDMX stands for Statistical Data and Metadata eXchange.
+sdmxabs is a small python package to download data from the Australian Bureau of Statistics using its SDMX API. SDMX stands for Statistical Data and Metadata eXchange. This package is designed to be used interactively within a Jupyter notebook.
 
 Usage
 -----
@@ -21,21 +21,29 @@ Before you fetch data from the ABS, you need to know three things:
 Key functions
 -------------
 
-`data_flows(flow_id:str='all', **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the ABS data. The data is returned in a dictionary with the flow identifier as the key and the attributes of that flow in a dictionary of name-value pairs. You can turn the returned value from data_flows() into a pandas DataFrame, with the following: `pd.DataFrame(data_flows()).T`
+**Metadata**
 
-`data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the data dimensions and attributes associated with a specific ABS dataflow. The data is returned in a dictionary of dimension/attribute names, and their associated information in a dictionary. You can turn the returned value from data_dimensions() into a pandas DataFrame, with the following: `pd.DataFrame(data_dimensions(flow_id)).T`
+`data_flows(flow_id:str='all', **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the ABS data. The data is returned in a dictionary with the flow identifier as the key and the attributes of that flow in a dictionary of name-value pairs. You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `frame (code_lists(cl_id))`
 
-`code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs])-> dict[str, dict[str, str]]` The data is returned in a dictionary of codes and their associated information. The code list identifiers (cl_id) can be found in the data dimensions (see previous). You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `pd.DataFrane(code_lists(cl_id)).T`
+`data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the data dimensions and attributes associated with a specific ABS dataflow. The data is returned in a dictionary of dimension/attribute names, and their associated information in a dictionary. You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `frame (code_lists(cl_id))`
+
+`code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs])-> dict[str, dict[str, str]]` The data is returned in a dictionary of codes and their associated information. The code list identifiers (cl_id) can be found in the data dimensions (see previous). You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `frame (code_lists(cl_id))`
+
+`code_list_for_dim(flow_id: str, dim_name: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` provides a quick method for getting the code list associated with a particular dimension in a dataflow. 
 
 `frame(f: dict[str, dict[str, str]]) -> pd.DataFrame`- a utility function to convert the output from the key flow metadata functions above to a more human readable pandas DataFrame. 
 
+
+
+**The ABS data**
+
 Once you know what data you want, you can specify that information in a fetch() request.
 
-`fetch(flow_id: str, dims: dict[str, str] | None, validate: bool, **kwargs: Unpack[GetFileKwargs]) -> tuple[pd.DataFrame, pd.DataFrame]:` - this function returns two DataFrames, the first is for data. The second is for the associated meta data. The column names in the data DataFrame will match the row names in the meta DataFrame. The dims argument is a dictionary, where the key is a dimension, and the value one or more codes from the relevant code list. Multiple values are concatenated with the "+" symbol. For example, the key value pair for extracting Seasonally Adjusted and Trend data is typically, `{"TSEST": "20+30"}`, where "TSEST" is the data dimenion. The validate argument reports if there were any issues translating your dimensions dictionary into  the SDMX key. 
+`fetch(flow_id: str, dims: dict[str, str] | None, parameters: dict[str, str] | None = None, validate: bool = False, **kwargs: Unpack[GetFileKwargs]) -> tuple[pd.DataFrame, pd.DataFrame]:` - this function returns two DataFrames, the first is for data. The second is for the associated meta data. The column names in the data DataFrame will match the row names in the meta DataFrame. The dims argument is a dictionary, where the key is a dimension, and the value one or more codes from the relevant code list. Multiple values are concatenated with the "+" symbol. For example, the key value pair for extracting Seasonally Adjusted and Trend data is typically, `{"TSEST": "20+30"}`, where "TSEST" is the data dimenion. The validate argument reports if there were any issues translating your dimensions dictionary into  the SDMX key. 
 
-`fetch_multi(wanted: pd.DataFrame, validate: bool = False, **kwargs: Unpack[GetFileKwargs],) -> tuple[pd.DataFrame, pd.DataFrame]` - allows for multiple items to be fetched and returned. Each selection is a row in a DataFrame. The column names are the data dimensions, and the `flow_id`. The function returns two DataFrames, the first for data and the second for metadata.
+`fetch_multi(wanted: pd.DataFrame, parameters: dict[str, str] | None = None, validate: bool = False, **kwargs: Unpack[GetFileKwargs],) -> tuple[pd.DataFrame, pd.DataFrame]` - allows for multiple items to be fetched and returned. Each selection is a row in a DataFrame. The column names are the data dimensions, and the `flow_id`. The function returns two DataFrames, the first for data and the second for metadata.
 
-`fetch_selection(flow_id: str, criteria: MatchCriteria, validate: bool, **kwargs: Unpack[GetFileKwargs]) -> tuple[pd.DataFrame, pd.DataFrame]` is a function to fetch ABS data based on match text strings to the code names used by the ABS. It allows for a more human readable and intuitive selection of ABS data. The function returns two DataFrames, the first for data and the second for metadata.
+`fetch_selection(flow_id: str, criteria: MatchCriteria, parameters: dict[str, str] | None = None, validate: bool = False, **kwargs: Unpack[GetFileKwargs]) -> tuple[pd.DataFrame, pd.DataFrame]` is a function to fetch ABS data based on match text strings to the code names used by the ABS. It allows for a more human readable and intuitive selection of ABS data. The function returns two DataFrames, the first for data and the second for metadata.
 
 `measure_names(meta: pd.DataFrame) -> pd.Series:` a convenience function to convert a metadata DataFrame into a series of y-axis labels.
 
@@ -47,6 +55,8 @@ Once you know what data you want, you can specify that information in a fetch() 
 
 Other
 -----
+`FlowMetaDict` is a useful type alias for dict[str, dict[str, str]], the type returned by all of the meta data functions.
+
 `make_wanted(flow_id: str, criteria: MatchCriteria) -> pd.DataFrame` - convert a selection criteria into a one line DataFrame that can be used as the wanted argument in fetch_multi().
 
 `match_item(pattern: str, dimension: str, match_type: MatchType = MatchType.PARTIAL) -> MatchItem` create a `MatchItem` from the arguments. 

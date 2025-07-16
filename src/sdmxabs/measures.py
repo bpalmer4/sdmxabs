@@ -118,7 +118,7 @@ def measure_names(meta: pd.DataFrame) -> pd.Series:
 
     """
     series = pd.Series(dtype=str)
-    duplicate_number: str = " Number"
+    duplicate_number: str = " Number"  # the space before 'Number' is important
     for label, row in meta.iterrows():
         name: str = str(label)  # worst case scenario
         if "UNIT_MEASURE" in row:
@@ -130,7 +130,7 @@ def measure_names(meta: pd.DataFrame) -> pd.Series:
                     name = f"{INDICIES[index]} {name}"  # best case
             except ValueError:
                 pass
-        name = name.removesuffix(duplicate_number)
+        name = name.removesuffix(duplicate_number)  # Just in case it is 'Number Numer'
         series[label] = name
     return series
 
