@@ -1,6 +1,6 @@
 [project]
 name = "sdmxabs"
-version = "0.1.11"
+version = "0.1.12"
 description = "Download data from the Australian Bureau of Statistics (ABS) using its SDMX API"
 readme = "README.md"
 license = { text = "LICENSE" }   # MIT License
@@ -24,12 +24,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     # - tools
-    "black",
-    "mypy",
-    "pdoc",
-    "pylint",
-    "ruff",
-    "nbqa",
+    "pdoc",     # documentation,
+    "nbqa",     # Jupyter notebook quality assurance
+    "ruff",     # linting and formatting
+    "mypy",     # python typing
+    "pyright",  # python typing
     
     # - typing
     "pandas-stubs",
@@ -37,10 +36,23 @@ dev = [
     "types-defusedxml",
 
     # --- testing
+    "pytest",           # testing framework
+    "pytest-cov",       # coverage reporting
+    "pytest-mock",      # mocking utilities
+    "pytest-xdist",     # parallel test execution
+    "coverage",         # coverage analysis
     "ipython",
     "ipykernel",
     "watermark",
     "mgplot",
+]
+
+test = [
+    "pytest",
+    "pytest-cov",
+    "pytest-mock",
+    "pytest-xdist",
+    "coverage",
 ]
 
 [project.urls]
@@ -63,4 +75,69 @@ lint.ignore = [
     "EM102",   # Exception must not use an f-string literal
     "T201",    # Remove `print` --> But I use print to alert the user
     "TRY003",  # Long exception messages.
+]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "F401",    # Unused imports (common in test files)
+    "F811",    # Redefined names (fixtures, mocks)
+    "S101",    # Use of assert (assert statements are expected in tests)
+    "PLR2004", # Magic value comparison
+    "PLR0915", # Too many statements (complex test functions)
+    "ARG001",  # Unused function arguments (test fixtures)
+    "ANN001",  # Missing type annotation for function argument
+    "ANN002",  # Missing type annotation for *args
+    "ANN003",  # Missing type annotation for **kwargs
+    "ANN201",  # Missing return type annotation for public function
+    "ANN202",  # Missing return type annotation for private function
+    "PLC0415", # Import should be at top level (fixtures need local imports)
+    "PT011",   # pytest.raises() too broad (sometimes we want broad exceptions)
+    "PD011",   # Use .to_numpy() instead of .values (acceptable in tests)
+    "W291",    # Trailing whitespace
+    "W293",    # Blank line contains whitespace
+    "UP031",   # Use format specifiers instead of % formatting (legacy code OK)
+    "D",       # All docstring rules
+]
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=sdmxabs",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+    "--cov-fail-under=20",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+    "network: Tests requiring network access",
+]
+
+[tool.coverage.run]
+source = ["src/sdmxabs"]
+omit = [
+    "tests/*",
+    "src/sdmxabs/__init__.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
 ]

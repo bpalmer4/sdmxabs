@@ -11,6 +11,7 @@ __pycache__/
 
 # MacOS stuff to be ignored
 .DS_Store
+Thumbs.db
 
 # build files
 build/
@@ -21,9 +22,34 @@ wheels/
 # cache files - wherever they occur
 .sdmxabs_cache/
 
-# test outputs
-CHARTS/
+# Testing
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.cache
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
 
-# Virtual environments
+# Test outputs
+test-results/
+test-reports/
+pytest-*.xml
+junit.xml
+nosetests.xml
+
+# Temporary test files
+.testmondata
+.pytest_monitor/
+test_*.log
+*.log
+
+# environments
 .venv
 

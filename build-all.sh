@@ -20,12 +20,10 @@ fi
 
 # --- sync and build
 uv lock --upgrade  # --upgrade to get the latest dependencies
-uv sync --no-dev  # --no-dev to avoid installing dev dependencies
+uv sync --no-dev   # --no-dev to avoid installing dev dependencies
 uv build
-
-# --- install new locally
-uv sync  # install with the development dependencies
-uv pip install dist/$PACKAGE*.whl
+uv sync            # retore those dev dependencies
+uv pip install $PACKAGE
 
 # --- build documentation
 source .venv/bin/activate  # we need an environment to get pdoc 
