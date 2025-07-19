@@ -9,7 +9,12 @@ import pandas as pd
 
 from sdmxabs.download_cache import GetFileKwargs
 from sdmxabs.fetch_multi import fetch_multi
-from sdmxabs.flow_metadata import FlowMetaDict, code_lists, data_dimensions, data_flows
+from sdmxabs.flow_metadata import (
+    CODE_LIST_ID,
+    FlowMetaDict,
+    code_lists,
+    structure_from_flow_id,
+)
 
 
 # --- some types specific to this module
@@ -74,61 +79,12 @@ def _get_codes(
     return codes
 
 
-def _validate_flow_and_dimensions(flow_id: str) -> FlowMetaDict:
-    """Validate flow_id and return dimensions.
-
-    Args:
-        flow_id (str): The ID of the data flow to validate.
-
-    Returns:
-        FlowMetaDict: Dictionary containing the flow's dimensions.
-
-    Raises:
-        ValueError: If the flow_id is not valid or has no dimensions.
-
-    """
-    if flow_id not in data_flows():
-        raise ValueError(f"Invalid flow_id: {flow_id}.")
-    dimensions = data_dimensions(flow_id)
-    if not dimensions:
-        raise ValueError(f"No dimensions found for flow_id: {flow_id}.")
-    return dimensions
-
-
-def _validate_dimension(dimension: str, flow_id: str, dimensions: FlowMetaDict) -> str:
-    """Validate dimension and return codelist name if valid.
-
-    Args:
-        dimension (str): The dimension name to validate.
-        flow_id (str): The flow ID for error messages.
-        dimensions (FlowMetaDict): Dictionary containing the flow's dimensions.
-
-    Returns:
-        str: The codelist name if valid.
-
-    Raises:
-        ValueError: If dimension is not found or doesn't have a codelist.
-
-    """
-    if dimension not in dimensions:
-        raise ValueError(f"Dimension '{dimension}' not found for flow '{flow_id}'")
-
-    dim_dict = dimensions[dimension]
-    if "package" not in dim_dict or dim_dict["package"] != "codelist" or "id" not in dim_dict:
-        raise ValueError(f"Dimension '{dimension}' does not have a codelist for flow '{flow_id}'")
-
-    return dim_dict.get("id", "")
-
-
-def _process_match_criteria(
-    criteria: MatchCriteria, flow_id: str, dimensions: FlowMetaDict
-) -> dict[str, str]:
+def _process_match_criteria(criteria: MatchCriteria, structure: FlowMetaDict) -> dict[str, str]:
     """Process match criteria and build the result dictionary.
 
     Args:
         criteria (MatchCriteria): The match criteria to process.
-        flow_id (str): The flow ID for error messages.
-        dimensions (FlowMetaDict): Dictionary containing the flow's dimensions.
+        structure (FlowMetaDict): Dictionary containing the data structure.
 
     Returns:
         dict[str, str]: Dictionary of dimension codes.
@@ -136,11 +92,18 @@ def _process_match_criteria(
     """
     result_dict: dict[str, str] = {}
 
-    for pattern, dimension, match_type in criteria:
-        code_list_name = _validate_dimension(dimension, flow_id, dimensions)
+    for pattern, dim_name, match_type in criteria:
+        if dim_name not in structure:
+            raise ValueError(f"Dimension '{dim_name}' not found in structure.")
+        dim_dict = structure[dim_name]
+        if not pattern:
+            raise ValueError(f"Pattern for dimension '{dim_name}' cannot be empty.")
+        if "package" not in dim_dict or dim_dict["package"] != "codelist" or CODE_LIST_ID not in dim_dict:
+            raise ValueError(f"Dimension '{dim_name}' does not have a codelist.")
+        code_list_name = dim_dict.get(CODE_LIST_ID, "")
         codes = _get_codes(code_lists(code_list_name), pattern, match_type)
         if codes:
-            _package_codes(codes, dimension, result_dict)
+            _package_codes(codes, dim_name, result_dict)
 
     return result_dict
 
@@ -162,7 +125,7 @@ def match_item(
         MatchElement: A tuple representing the match element.
 
     Note:
-        This function is of little value. It is easier to create the tuple directly.
+        This function is of little value. It is much easier to create the tuple directly.
 
     """
     return (pattern, dimension, match_type)
@@ -194,8 +157,8 @@ def make_wanted(
         matches will be returned.
 
     """
-    dimensions = _validate_flow_and_dimensions(flow_id)
-    result_dict = _process_match_criteria(criteria, flow_id, dimensions)
+    structure = structure_from_flow_id(flow_id)
+    result_dict = _process_match_criteria(criteria, structure)
 
     # Add flow_id and return as DataFrame
     result_dict["flow_id"] = flow_id
@@ -267,6 +230,7 @@ if __name__ == "__main__":
         else:
             print(f"Test FAILED: Data columns {len(data.columns)}, Metadata rows {meta.shape[0]}")
         expected_seasonal = {"Trend", "Seasonally Adjusted"}
+        print(meta)
         if set(meta.TSEST.to_list()) == expected_seasonal:
             print("Test passed: TSEST has expected values.")
         else:

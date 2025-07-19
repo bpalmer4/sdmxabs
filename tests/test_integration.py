@@ -92,9 +92,9 @@ class TestIntegrationBasicWorkflow:
         # Test the workflow
         flows = sa.data_flows()
         assert "CPI" in flows
-        assert flows["CPI"]["name"] == "Consumer Price Index"
+        assert flows["CPI"]["flow_name"] == "Consumer Price Index"
 
-        dims = sa.data_dimensions("CPI")
+        dims = sa.structure_from_flow_id("CPI")
         assert "FREQ" in dims
 
         codes = sa.code_lists("CL_FREQ")

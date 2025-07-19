@@ -12,24 +12,54 @@ from sdmxabs import MatchType as Mt
 Before you fetch data from the ABS, you need to know three things:
 
 -   the flow identifier (flow_id) for the data you want. These are short strings, like "CPI" for the 
-    Consumer Price Index. You find these using the ```data_flows()``` function
--   the dimensions for this flow_id, which are used to select a specific data series. If no dimensiosn are set, the fetch() function will return all data series for a flow identifier. The dimensions can be found using the ```data_dimensions()``` function.
--   the codes the ABS uses to specify selected data series against these dimensions. The codes can be found in the relevant code_lists using the ```code_lists()``` function. The code list names are part of the information provided with the data dimenions.
+    Consumer Price Index. You find these using the `data_flows()` function. The `data_flows()` function also 
+    provides a data structure identifier, which is used to get the data structure for the flow.
+-   the data structure for this flow_id, which provides information on data dimensions and data attributes.
+    The data dimensions are used to select a specific data series. If no dimensions are set, the `fetch()` function will return all data series for a flow identifier. The dimensions can be found using the `data_structures()` function.
+-   the codes the ABS uses to specify selected data series against these dimensions. The codes can be found in the
+    relevant code_lists using either the `code_lists()` function or the `code_list_for()` function. The code list names are part of the information provided with the data dimensions.
+
+```
+ +----------------------------------+
+ |           data flow              |
+ |(flow_id, flow_name, structure_id)|
+ +---------------------------------+
+                  |
+                  V
+ +----------------------------------+
+ |          data stucture           |
+ |     (dimensions, attributes,     |
+ |          codelist_ida)           |
+ +----------------------------------+
+                  |
+                  V
+ +----------------------------------+
+ |            code list             |
+ |       (code, name, parent)       |
+ +----------------------------------+
+```
 
 **Note**: it is much, much faster to fetch one or two series using the data dimensions and code lists, than to fetch every data series associated with a flow identifier, and then search through the meta data for the data you want. 
+
+
+
 
 Key functions
 -------------
 
 **Metadata**
 
-`data_flows(flow_id:str='all', **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the ABS data. The data is returned in a dictionary with the flow identifier as the key and the attributes of that flow in a dictionary of name-value pairs. You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `frame (code_lists(cl_id))`
+`data_flows(flow_id:str='all', **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the ABS data. The data is returned in a dictionary with the flow identifier as the key and the attributes of that flow in a dictionary of name-value pairs. The attribute of greatest interest will be the data structure identifier. You can turn the returned value from `data_flows()` into a pandas DataFrame, with the following: `frame(data_flows("all"))`
 
-`data_dimensions(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the data dimensions and attributes associated with a specific ABS dataflow. The data is returned in a dictionary of dimension/attribute names, and their associated information in a dictionary. You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `frame (code_lists(cl_id))`
+`structure_ident(flow_id:str) -> str` - use this function to get the structure identifier for a specific flow_identifier. More than 99% of the flow identifiers are the same as the relevant structure identifier (but not 100% unfortunately). 
+
+`data_structures(structure_id: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` - returns the data structure associated with a specific ABS structure identifier. The data is returned in a dictionary of dimension/attribute names, and their associated information in a dictionary. You can turn the returned value from `data_structures()` into a pandas DataFrame, with the following: `frame(data_structures(structure_id))`
 
 `code_lists(cl_id: str, **kwargs: Unpack[GetFileKwargs])-> dict[str, dict[str, str]]` The data is returned in a dictionary of codes and their associated information. The code list identifiers (cl_id) can be found in the data dimensions (see previous). You can turn the returned value from code_lists() into a pandas DataFrame, with the following: `frame (code_lists(cl_id))`
 
-`code_list_for_dim(flow_id: str, dim_name: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` provides a quick method for getting the code list associated with a particular dimension in a dataflow. 
+`code_list_for(struct_id: str, dim_name: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` provides a quick method for getting the code list associated with a particular dimension in a data structure.
+
+`structure_from_flow_id(flow_id: str, **kwargs: Unpack[GetFileKwargs]) -> dict[str, dict[str, str]]` provides a convenient method to get the data structure directly from a flow identifier, combining `structure_ident()` and `data_structures()` in one call. 
 
 `frame(f: dict[str, dict[str, str]]) -> pd.DataFrame`- a utility function to convert the output from the key flow metadata functions above to a more human readable pandas DataFrame. 
 
@@ -64,8 +94,8 @@ Other
 `GetFileKwargs` is a TypedDict. It specifies the possible arguments for data retrieval from the ABS:
 
 -    `verbose: bool` - provide step-by-step information about the data retrieval process.
--    `modaility: str` - Which will be one of "prefer-cache" or "prefer-url". By defaulkt, the calls
-                            to the metadata functions [data_flows(), data_dimensions(), and code_lists()]
+-    `modality: str` - Which will be one of "prefer-cache" or "prefer-url". By default, the calls
+                            to the metadata functions [data_flows(), data_structures(), and code_lists()]
                             are set to "prefer-cache". The fetch functions default to "prefer-url", which
                             means they get the latest data from the ABS. 
 

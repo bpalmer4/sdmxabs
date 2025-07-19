@@ -9,10 +9,11 @@ from sdmxabs.download_cache import GetFileKwargs
 from sdmxabs.fetch_gdp import fetch_gdp
 from sdmxabs.fetch_selection import MatchType as Mt
 from sdmxabs.fetch_selection import fetch_selection
-from sdmxabs.flow_metadata import code_list_for_dim
+from sdmxabs.flow_metadata import code_list_for, structure_ident
 
 # --- constants
 FLOW_ID = "ERP_COMP_Q"
+STRUCTURE_ID = structure_ident(FLOW_ID)
 QUARTERS_IN_YEAR = 4
 LAST_QUARTER_TOO_OLD_FOR_PROJECTION = 4
 
@@ -124,7 +125,7 @@ def _state_name_from_abbrev(state: str) -> str:
 
     lower_case_abbrev = state.lower().strip()
     state_name = abbrev_to_name.get(lower_case_abbrev, state.strip())
-    state_names = pd.DataFrame(code_list_for_dim(FLOW_ID, "REGION")).T
+    state_names = pd.DataFrame(code_list_for(STRUCTURE_ID, "REGION")).T
     if state_name not in state_names["name"].to_numpy():
         raise ValueError(f"Invalid state '{state_name}'. Available: {list(state_names['name'].unique())}")
     return state_name

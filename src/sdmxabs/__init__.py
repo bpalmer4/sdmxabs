@@ -13,7 +13,16 @@ from .fetch_gdp import fetch_gdp
 from .fetch_multi import fetch_multi
 from .fetch_pop import fetch_pop, fetch_state_pop
 from .fetch_selection import MatchCriteria, MatchItem, MatchType, fetch_selection, make_wanted, match_item
-from .flow_metadata import FlowMetaDict, code_list_for_dim, code_lists, data_dimensions, data_flows, frame
+from .flow_metadata import (
+    FlowMetaDict,
+    code_list_for,
+    code_lists,
+    data_flows,
+    data_structures,
+    frame,
+    structure_from_flow_id,
+    structure_ident,
+)
 from .measures import measure_names, recalibrate, recalibrate_series
 
 # --- version and author
@@ -35,10 +44,10 @@ __all__ = [
     "ModalityType",
     "__author__",
     "__version__",
-    "code_list_for_dim",
+    "code_list_for",
     "code_lists",
-    "data_dimensions",
     "data_flows",
+    "data_structures",
     "fetch",
     "fetch_gdp",
     "fetch_multi",
@@ -51,4 +60,6 @@ __all__ = [
     "measure_names",
     "recalibrate",
     "recalibrate_series",
+    "structure_from_flow_id",
+    "structure_ident",
 ]

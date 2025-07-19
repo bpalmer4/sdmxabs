@@ -329,12 +329,12 @@ class TestFetch:
 class TestExtract:
     """Test _extract function."""
 
-    @patch("sdmxabs.fetch.data_dimensions")
-    def test_extract_success(self, mock_data_dimensions):
+    @patch("sdmxabs.fetch.structure_from_flow_id")
+    def test_extract_success(self, mock_structure_from_flow_id):
         """Test successful data extraction from XML."""
-        mock_data_dimensions.return_value = {
-            "FREQ": {"id": "CL_FREQ", "package": "codelist"},
-            "REGION": {"id": "CL_REGION", "package": "codelist"},
+        mock_structure_from_flow_id.return_value = {
+            "FREQ": {"codelist_id": "CL_FREQ", "package": "codelist"},
+            "REGION": {"codelist_id": "CL_REGION", "package": "codelist"},
         }
 
         # Create mock XML tree
@@ -370,10 +370,10 @@ class TestExtract:
         assert len(data_df.columns) == 1
         assert len(meta_df) == 1
 
-    @patch("sdmxabs.fetch.data_dimensions")
-    def test_extract_no_series(self, mock_data_dimensions):
+    @patch("sdmxabs.fetch.structure_from_flow_id")
+    def test_extract_no_series(self, mock_structure_from_flow_id):
         """Test extraction with no series in XML."""
-        mock_data_dimensions.return_value = {}
+        mock_structure_from_flow_id.return_value = {}
 
         root = Element("root")
         # No series elements
@@ -385,10 +385,10 @@ class TestExtract:
         assert len(data_df.columns) == 0
         assert len(meta_df) == 0
 
-    @patch("sdmxabs.fetch.data_dimensions")
-    def test_extract_duplicate_series(self, mock_data_dimensions):
+    @patch("sdmxabs.fetch.structure_from_flow_id")
+    def test_extract_duplicate_series(self, mock_structure_from_flow_id):
         """Test extraction with duplicate series (same metadata)."""
-        mock_data_dimensions.return_value = {"FREQ": {"id": "CL_FREQ", "package": "codelist"}}
+        mock_structure_from_flow_id.return_value = {"FREQ": {"codelist_id": "CL_FREQ", "package": "codelist"}}
 
         root = Element("root")
 

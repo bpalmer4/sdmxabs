@@ -86,7 +86,9 @@ def _extract(
 
         # --- fetch the data and meta data for each row of the selection table
         try:
-            data, meta = fetch(flow_id, dims=row_dict, parameters=parameters, validate=validate, **kwargs)
+            data, meta = fetch(
+                flow_id, selection=row_dict, parameters=parameters, validate=validate, **kwargs
+            )
         except (CacheError, HttpError, ValueError) as e:
             # --- if there is an error, we will skip this row
             print(f"Error fetching {flow_id} with dimensions {row_dict}: {e}")

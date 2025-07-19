@@ -9,11 +9,13 @@ import pandas as pd
 
 from sdmxabs.download_cache import GetFileKwargs
 from sdmxabs.flow_metadata import (
+    CODE_LIST_ID,
+    FLOW_NAME,
     FlowMetaDict,
     build_key,
     code_lists,
-    data_dimensions,
     data_flows,
+    structure_from_flow_id,
 )
 from sdmxabs.xml_base import NAME_SPACES, URL_STEM, acquire_xml
 
@@ -37,7 +39,7 @@ class MetadataContext:
     series_count: int
     label_elements: list[str]
     meta_items: dict[str, str]
-    dims: FlowMetaDict
+    structure: FlowMetaDict
     item_count: int
 
 
@@ -85,22 +87,22 @@ def _get_series_data(xml_series: Element, meta: pd.Series) -> pd.Series:
     return _convert_to_period_index(series, frequency).sort_index()
 
 
-def _decode_meta_value(meta_value: str, meta_id: str, dims: FlowMetaDict) -> str:
+def _decode_meta_value(meta_value: str, meta_id: str, structure: FlowMetaDict) -> str:
     """Decode a metadata value based on its ID and the relevant ABS codelist."""
     # Early return if basic requirements not met
-    if meta_id not in dims:
+    if meta_id not in structure:
         return meta_value
 
-    dim_config = dims[meta_id]
-    if "id" not in dim_config or "package" not in dim_config:
+    dim_config = structure[meta_id]
+    if CODE_LIST_ID not in dim_config or "package" not in dim_config:
         return meta_value
 
     # Early return if not a codelist
-    if not dim_config["id"] or dim_config["package"] != CODELIST_PACKAGE_TYPE:
+    if not dim_config[CODE_LIST_ID] or dim_config["package"] != CODELIST_PACKAGE_TYPE:
         return meta_value
 
     # Try to decode using codelist
-    cl = code_lists(dim_config["id"])
+    cl = code_lists(dim_config[CODE_LIST_ID])
     if meta_value in cl and "name" in cl[meta_value]:
         return cl[meta_value]["name"]
 
@@ -122,14 +124,14 @@ def _process_xml_attributes(xml_series: Element, key_set: str, context: Metadata
         )
         context.label_elements.append(meta_value)
         if meta_id not in DECODE_EXCLUSIONS:
-            context.meta_items[meta_id] = _decode_meta_value(meta_value, meta_id, context.dims)
+            context.meta_items[meta_id] = _decode_meta_value(meta_value, meta_id, context.structure)
         else:
             context.meta_items[meta_id] = meta_value
         context.item_count += 1
 
 
 def _get_series_meta_data(
-    flow_id: str, xml_series: Element, series_count: int, dims: FlowMetaDict
+    flow_id: str, xml_series: Element, series_count: int, structure: FlowMetaDict
 ) -> tuple[str, pd.Series]:
     """Extract and decode metadata from the XML tree for one given series.
 
@@ -137,7 +139,7 @@ def _get_series_meta_data(
         flow_id (str): The ID of the data flow to which the series belongs.
         xml_series (Element): The XML element representing the series.
         series_count (int): The index of the series in the XML tree.
-        dims (FlowMetaDict): Dictionary containing metadata dimensions and
+        structure (FlowMetaDict): Dictionary containing the data structure metadata dimensions and
             their associated codelist names.
 
     Returns:
@@ -146,14 +148,14 @@ def _get_series_meta_data(
 
     """
     label_elements = [flow_id]
-    flow_name = data_flows().get(flow_id, {"name": flow_id})["name"]
+    flow_name = data_flows().get(flow_id, {FLOW_NAME: flow_id})[FLOW_NAME]
     meta_items = {"DATAFLOW": flow_name}
 
     context = MetadataContext(
         series_count=series_count,
         label_elements=label_elements,
         meta_items=meta_items,
-        dims=dims,
+        structure=structure,
         item_count=0,
     )
 
@@ -167,7 +169,7 @@ def _get_series_meta_data(
 def _extract(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Extract data from the XML tree."""
     # Get the data dimensions for the flow_id, it provides entree to the metadata
-    dims = data_dimensions(flow_id)
+    structure = structure_from_flow_id(flow_id)
 
     meta = {}
     data: dict[str, pd.Series] = {}
@@ -181,7 +183,7 @@ def _extract(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
             # xml_series is an ElementTree
             xml_series,
             series_count,
-            dims,
+            structure,
         )
         series = _get_series_data(xml_series, meta_series)
         if label in data:
@@ -198,7 +200,7 @@ def _extract(flow_id: str, tree: Element) -> tuple[pd.DataFrame, pd.DataFrame]:
 # === public functions ===
 def fetch(
     flow_id: str,
-    dims: dict[str, str] | None = None,
+    selection: dict[str, str] | None = None,
     parameters: dict[str, str] | None = None,
     *,
     validate: bool = False,
@@ -208,16 +210,16 @@ def fetch(
 
     Args:
         flow_id (str): The ID of the data flow from which to retrieve data items.
-        dims (dict[str, str], optional): A dictionary of dimensions to select the
-            data items. If None, the ABS fetch request will be for all data items,
-            which can be slow.
+        selection (dict[str, str], optional): A dictionary of dimension=value pairs
+            to select the data items. If None, the ABS fetch request will be for all
+            data items, which can be slow.
         parameters (dict[str, str], optional): A dictionary of SDMX parameters to apply
             to the data request. Supported parameters include:
             - 'startPeriod': Start period for data filtering (e.g., '2020-Q1')
             - 'endPeriod': End period for data filtering (e.g., '2023-Q4')
             - 'detail': Level of detail ('full', 'dataonly', 'serieskeysonly', 'nodata')
             If None, no parameters are applied.
-        validate (bool, optional): If True, validate `dims` against the flow's
+        validate (bool, optional): If True, validate  against the flow's
             required dimensions when generating the URL key. Defaults to False.
         **kwargs (GetFileKwargs): Additional keyword arguments passed to acquire_xml().
 
@@ -239,7 +241,7 @@ def fetch(
     # --- report the parameters used if requested
     verbose = kwargs.get("verbose", False)
     if verbose:
-        print(f"fetch(): {flow_id=} {dims=} {parameters=} {validate=} {kwargs=}")
+        print(f"fetch(): {flow_id=} {selection=} {parameters=} {validate=} {kwargs=}")
 
     # --- validate parameters
     valid_detail_values = {"full", "dataonly", "serieskeysonly", "nodata"}
@@ -251,7 +253,7 @@ def fetch(
     # --- prepare to get the XML root from the ABS SDMX API
     # prefer fresh data every time
     kwargs["modality"] = kwargs.get("modality", "prefer-url")
-    key = build_key(flow_id, dims, validate=validate)
+    key = build_key(flow_id, selection, validate=validate)
 
     # --- build URL with optional parameters
     url = f"{URL_STEM}/data/{flow_id}/{key}"
@@ -290,7 +292,7 @@ if __name__ == "__main__":
 
         fetched_data, fetched_meta = fetch(
             flow_id,
-            dims=dims,
+            selection=dims,
             parameters=parameters,
             validate=True,
             modality="prefer-url",
