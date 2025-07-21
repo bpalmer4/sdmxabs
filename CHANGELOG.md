@@ -1,3 +1,8 @@
+Version 0.2.2 - 21 July 2025 (Canberra, Australia)
+
+* Documentation
+    - enhanced README with Quick Start Example, Common Usage Patterns, and Performance Tips
+
 Version 0.2.1 - 19 July 2025 (Canberra, Australia)
 
 * Major changes

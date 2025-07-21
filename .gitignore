@@ -53,3 +53,6 @@ test_*.log
 # environments
 .venv
 
+# Claude Code configuration
+CLAUDE.md
+
