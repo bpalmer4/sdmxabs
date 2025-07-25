@@ -4,6 +4,7 @@ The default cache directory can be specified by setting the environment
 variable SDMXABS_CACHE_DIR.
 """
 
+import contextlib
 import re
 from hashlib import sha256
 from os import getenv
@@ -198,7 +199,9 @@ def acquire_url(
         return Path(cache_dir / file_name)
 
     # --- create and check cache_dir is a directory
-    cache_dir.mkdir(parents=True, exist_ok=True)
+    with contextlib.suppress(FileExistsError):
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
     if not cache_dir.is_dir():
         msg = f"Cache path is not a directory: {cache_dir.name}"
         raise CacheError(msg)

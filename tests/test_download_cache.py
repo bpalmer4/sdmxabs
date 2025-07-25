@@ -251,9 +251,14 @@ class TestAcquireUrl:
 
     def test_url_to_filename_conversion(self, temp_cache_dir):
         """Test that URLs are properly converted to cache filenames."""
-        with patch("sdmxabs.download_cache._get_data") as mock_get_data:
-            mock_get_data.return_value = b"test content"
+        def mock_request_get_side_effect(url, file_path, **kwargs):
+            # Simulate the real _request_get behavior - save to cache and return content
+            from sdmxabs.download_cache import _save_to_cache
+            content = b"test content"
+            _save_to_cache(file_path, content, **kwargs)
+            return content
 
+        with patch("sdmxabs.download_cache._request_get", side_effect=mock_request_get_side_effect):
             url = "https://example.com/data/test?param=value"
             acquire_url(url, cache_dir=temp_cache_dir)
 

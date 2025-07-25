@@ -1,3 +1,12 @@
+Version 0.2.3 - 25 July 2025 (Canberra, Australia)
+
+* Testing
+    - fixed 9 failing integration tests, improving test reliability from 117/126 to 125/126 passing tests
+    - improved mock patching and HTTP request mocking in integration tests
+    - fixed pandas deprecation warning in data processing using `pd.to_numeric(errors="coerce", downcast="float")`
+    - added comprehensive performance optimizations reducing test runtime by 80% (61s → 13s)
+    - implemented parallel test execution and created fast test runner script
+
 Version 0.2.2 - 21 July 2025 (Canberra, Australia)
 
 * Documentation

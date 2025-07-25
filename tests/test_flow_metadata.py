@@ -11,8 +11,8 @@ from sdmxabs.flow_metadata import (
     build_key,
     code_list_for,
     code_lists,
-    data_structures,
     data_flows,
+    data_structures,
     frame,
     structure_from_flow_id,
     structure_ident,
@@ -240,7 +240,9 @@ class TestStructureIdent:
     @patch("sdmxabs.flow_metadata.data_flows")
     def test_structure_ident_success(self, mock_data_flows):
         """Test successful structure identifier retrieval."""
-        mock_data_flows.return_value = {"CPI": {"flow_name": "Consumer Price Index", "data_structure_id": "CPI_DSD"}}
+        mock_data_flows.return_value = {
+            "CPI": {"flow_name": "Consumer Price Index", "data_structure_id": "CPI_DSD"}
+        }
 
         result = structure_ident("CPI")
 
@@ -261,7 +263,8 @@ class TestStructureIdent:
         # Clear cache to avoid interference
         structure_ident.cache_clear()
         
-        mock_data_flows.return_value = {"CPI": {"flow_name": "Consumer Price Index"}}  # Missing data_structure_id
+        # Missing data_structure_id
+        mock_data_flows.return_value = {"CPI": {"flow_name": "Consumer Price Index"}}
 
         with pytest.raises(ValueError, match="No data structure found for flow 'CPI'"):
             structure_ident("CPI")

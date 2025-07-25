@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from typing import Unpack
 from xml.etree.ElementTree import Element
 
-import numpy as np
 import pandas as pd
 
 from sdmxabs.download_cache import GetFileKwargs
@@ -75,11 +74,16 @@ def _get_series_data(xml_series: Element, meta: pd.Series) -> pd.Series:
     series: pd.Series = pd.Series(series_elements)
 
     # --- if we can, make the series values numeric
-    series = series.replace("", np.nan)
-    try:
-        series = pd.to_numeric(series)
-    except ValueError:
-        # If conversion fails, keep the series as is (it may contain useful non-numeric data)
+    # Use errors="coerce" to convert invalid values (including empty strings) to NaN
+    numeric_series = pd.to_numeric(series, errors="coerce", downcast="float")
+
+    # If some values were successfully converted, use the numeric series
+    # If no values were convertible AND the original had meaningful non-numeric data, keep original
+    if numeric_series.notna().any() or (series == "").any():
+        # Either we have some valid numbers, or we have empty strings that should become NaN
+        series = numeric_series
+    else:
+        # All values are non-numeric and not empty strings (e.g., "N/A", "text", etc.)
         print(f"Could not convert series {meta.name} to numeric, keeping as is.")
 
     # --- convert to PeriodIndex if frequency is available, and sort the index
